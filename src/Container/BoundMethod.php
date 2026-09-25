@@ -126,9 +126,7 @@ class BoundMethod
         }
     }
 
-    /**
-     * Determine if the given string is in Class@method syntax.
-     */
+   
     protected static function isCallableWithAtSign(mixed $callback): bool
     {
         return is_string($callback) && strpos($callback, '@') !== false;

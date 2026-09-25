@@ -93,7 +93,8 @@ _ide_helper_models.php
 # === Documentation build files ===
 /docs/_build/
 /docs/build/
-
+/docs/*
+/examples/*
 # === Package files ===
 *.tar.gz
 *.zip

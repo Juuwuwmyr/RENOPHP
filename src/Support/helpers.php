@@ -204,3 +204,48 @@ if (!function_exists('data_get')) {
         return $target;
     }
 }
+if (!function_exists('collect')) {
+    /**
+     * Create a collection from the given value.
+     */
+    function collect(mixed $value = []): \Horizon\Support\Collection
+    {
+        return new \Horizon\Support\Collection($value);
+    }
+}
+
+if (!function_exists('head')) {
+    /**
+     * Get the first element of an array.
+     */
+    function head(array $array): mixed
+    {
+        return reset($array);
+    }
+}
+
+if (!function_exists('last')) {
+    /**
+     * Get the last element from an array.
+     */
+    function last(array $array): mixed
+    {
+        return end($array);
+    }
+}
+
+if (!function_exists('tap')) {
+    /**
+     * Call the given Closure with the given value then return the value.
+     */
+    function tap(mixed $value, callable $callback = null): mixed
+    {
+        if (is_null($callback)) {
+            return $value;
+        }
+
+        $callback($value);
+
+        return $value;
+    }
+}
