@@ -66,51 +66,6 @@ The goal is not just to make the code shorter.
 
 The goal is to make the code easier to understand.
 
----
-
-## Easy Project Structure
-
-A RenoPHP application is organized into clear folders:
-
-```text
-my-project/
-│
-├── app/
-│   ├── Controllers/
-│   ├── Models/
-│   ├── Services/
-│   └── Middleware/
-│
-├── config/
-│
-├── database/
-│   ├── migrations/
-│   └── seeders/
-│
-├── resources/
-│   └── views/
-│
-├── routes/
-│   ├── web.php
-│   └── api.php
-│
-├── public/
-│   └── index.php
-│
-├── storage/
-│
-├── tests/
-│
-├── .env
-├── composer.json
-└── reno
-```
-
-You don't need to memorize a complicated structure.
-
-Each folder has a clear purpose.
-
----
 
 ## Learn While Building
 
