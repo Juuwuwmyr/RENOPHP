@@ -1,0 +1,23 @@
+# Dependency directory
+/vendor/
+
+# Downloaded tools and setup scripts
+composer.phar
+composer-setup.php
+
+# Environment & local configuration files
+.env
+.env.local
+.env.*.local
+
+# IDE, Editor, and OS specific files
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Testing / Code coverage output
+.phpunit.result.cache
+/build/
+/coverage/
