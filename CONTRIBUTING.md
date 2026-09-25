@@ -1,6 +1,6 @@
 # Contributing to RENOPHP Framework
 
-We love your input! We want to make contributing to Horizon as easy and transparent as possible.
+We love your input! We want to make contributing to RENOPHP as easy and transparent as possible.
 
 ## Development Process
 
