@@ -1,4 +1,4 @@
-# Contributing to Horizon Framework
+# Contributing to RENOPHP Framework
 
 We love your input! We want to make contributing to Horizon as easy and transparent as possible.
 
