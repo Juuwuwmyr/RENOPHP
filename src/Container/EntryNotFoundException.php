@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Horizon\Container;
 
 use Exception;
-use Psr\Container\NotFoundExceptionInterface;
+use Horizon\Contracts\Container\ContainerException;
 
-class EntryNotFoundException extends Exception implements NotFoundExceptionInterface
+class EntryNotFoundException extends Exception implements ContainerException
 {
     //
 }

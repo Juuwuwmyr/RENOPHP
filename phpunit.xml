@@ -1,27 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
-         bootstrap="vendor/autoload.php"
+         xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
          colors="true"
          processIsolation="false"
-         stopOnFailure="false"
-         cacheDirectory=".phpunit.cache"
-         backupGlobals="false">
+         stopOnFailure="false">
     <testsuites>
         <testsuite name="Horizon Test Suite">
-            <directory>tests</directory>
+            <directory suffix="Test.php">./tests</directory>
+        </testsuite>
+        <testsuite name="Routing">
+            <directory suffix="Test.php">./tests/Routing</directory>
         </testsuite>
     </testsuites>
-    <source>
+    <coverage processUncoveredFiles="true">
         <include>
-            <directory suffix=".php">src</directory>
+            <directory suffix=".php">./src</directory>
         </include>
         <exclude>
-            <directory>src/Support/helpers.php</directory>
+            <directory>./src/Console/Commands</directory>
+            <file>./src/Support/helpers.php</file>
         </exclude>
-    </source>
+    </coverage>
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_DEBUG" value="true"/>
+        <env name="CACHE_DRIVER" value="array"/>
     </php>
 </phpunit>

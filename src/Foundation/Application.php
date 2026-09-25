@@ -22,6 +22,26 @@ class Application extends Container implements ApplicationInterface
     protected string $basePath;
 
     /**
+     * The custom storage path defined by the developer.
+     */
+    protected ?string $storagePath = null;
+
+    /**
+     * The custom database path defined by the developer.
+     */
+    protected ?string $databasePath = null;
+
+    /**
+     * The custom lang path defined by the developer.
+     */
+    protected ?string $langPath = null;
+
+    /**
+     * The custom public path defined by the developer.
+     */
+    protected ?string $publicPath = null;
+
+    /**
      * The environment file to load during bootstrapping.
      */
     protected string $environmentFile = '.env';
@@ -482,6 +502,32 @@ class Application extends Container implements ApplicationInterface
     }
 
     /**
+     * Determine if the application has been bootstrapped before.
+     */
+    public function hasBeenBootstrapped(): bool
+    {
+        return $this->booted;
+    }
+
+    /**
+     * Bootstrap the application with the given bootstrappers.
+     */
+    public function bootstrapWith(array $bootstrappers): void
+    {
+        foreach ($bootstrappers as $bootstrapper) {
+            $this->make($bootstrapper)->bootstrap($this);
+        }
+    }
+
+    /**
+     * Determine if middleware should be skipped.
+     */
+    public function shouldSkipMiddleware(): bool
+    {
+        return false; // Will be implemented later
+    }
+
+    /**
      * Get the fully qualified path to the environment file.
      */
     public function environmentFilePath(): string
@@ -502,7 +548,15 @@ class Application extends Container implements ApplicationInterface
      */
     public function routesAreCached(): bool
     {
-        return false; // Will be implemented in later phases
+        return file_exists($this->getCachedRoutesPath());
+    }
+
+    /**
+     * Get the path to the cached routes file.
+     */
+    public function getCachedRoutesPath(): string
+    {
+        return $this->bootstrapPath('cache/routes.php');
     }
 
     /**

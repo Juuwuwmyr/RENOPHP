@@ -5,10 +5,33 @@ declare(strict_types=1);
 namespace Horizon\Contracts\Container;
 
 use Closure;
-use Psr\Container\ContainerInterface as PsrContainerInterface;
 
-interface ContainerInterface extends PsrContainerInterface
+/**
+ * Container Interface
+ * 
+ * Defines the contract for the dependency injection container.
+ * Compatible with PSR-11 ContainerInterface.
+ */
+interface ContainerInterface
 {
+    /**
+     * Finds an entry of the container by its identifier and returns it.
+     *
+     * @param string $id Identifier of the entry to look for.
+     * @return mixed Entry.
+     * @throws ContainerException Error while retrieving the entry.
+     */
+    public function get(string $id): mixed;
+
+    /**
+     * Returns true if the container can return an entry for the given identifier.
+     * Returns false otherwise.
+     *
+     * @param string $id Identifier of the entry to look for.
+     * @return bool
+     */
+    public function has(string $id): bool;
+
     /**
      * Bind an abstract type to a concrete implementation.
      */
@@ -22,7 +45,7 @@ interface ContainerInterface extends PsrContainerInterface
     /**
      * Bind an existing instance as shared in the container.
      */
-    public function instance(string $abstract, object $instance): object;
+    public function instance(string $abstract, mixed $instance): mixed;
 
     /**
      * Resolve the given type from the container.
@@ -73,6 +96,16 @@ interface ContainerInterface extends PsrContainerInterface
      * Flush the container of all bindings and resolved instances.
      */
     public function flush(): void;
+
+    /**
+     * Set the globally available instance of the container.
+     */
+    public static function setInstance(?ContainerInterface $container = null): ?ContainerInterface;
+
+    /**
+     * Get the globally available instance of the container.
+     */
+    public static function getInstance(): static;
 }
 
 interface ContextualBindingBuilder
@@ -91,4 +124,11 @@ interface ContextualBindingBuilder
      * Define tagged services to be used for the given context.
      */
     public function giveTagged(string $tag): void;
+}
+
+/**
+ * Exception interface for container-related errors
+ */
+interface ContainerException extends \Throwable
+{
 }

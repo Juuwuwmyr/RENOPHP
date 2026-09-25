@@ -167,7 +167,7 @@ class Container implements ContainerInterface
      */
     public function __get(string $key): mixed
     {
-        return $this[$key];
+        return $this->get($key);
     }
 
     /**
@@ -175,7 +175,7 @@ class Container implements ContainerInterface
      */
     public function __set(string $key, mixed $value): void
     {
-        $this[$key] = $value;
+        $this->instance($key, $value);
     }
 
     /**
@@ -350,7 +350,7 @@ class Container implements ContainerInterface
     /**
      * Register an existing instance as shared in the container.
      */
-    public function instance(string $abstract, object $instance): object
+    public function instance(string $abstract, mixed $instance): mixed
     {
         $this->removeAbstractAlias($abstract);
 
@@ -1046,14 +1046,6 @@ class Container implements ContainerInterface
     protected function isCallable(mixed $concrete): bool
     {
         return method_exists($concrete, '__invoke');
-    }
-
-    /**
-     * Get the globally available instance of the container.
-     */
-    public static function setInstance(?ContainerInterface $container = null): ?ContainerInterface
-    {
-        return static::$instance = $container;
     }
 }
 

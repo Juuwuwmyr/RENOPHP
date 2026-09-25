@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Horizon\Container\Exceptions;
 
 use Exception;
-use Psr\Container\NotFoundExceptionInterface;
+use Horizon\Contracts\Container\ContainerException;
 
-class BindingResolutionException extends Exception implements NotFoundExceptionInterface
+class BindingResolutionException extends Exception implements ContainerException
 {
     //
 }

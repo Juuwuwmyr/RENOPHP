@@ -56,6 +56,11 @@ class Request implements RequestInterface
     protected ?string $content = null;
 
     /**
+     * The route resolver callback.
+     */
+    protected ?\Closure $routeResolver = null;
+
+    /**
      * Create a new HTTP request instance.
      */
     public function __construct(
@@ -469,6 +474,74 @@ class Request implements RequestInterface
     public function user(): mixed
     {
         throw new \RuntimeException('Authentication support is not implemented yet.');
+    }
+
+    /**
+     * Get the route handling the request.
+     */
+    public function route(string $param = null, mixed $default = null): mixed
+    {
+        $route = call_user_func($this->getRouteResolver());
+
+        if (is_null($route) || is_null($param)) {
+            return $route;
+        }
+
+        return $route->parameter($param, $default);
+    }
+
+    /**
+     * Get the route resolver callback.
+     */
+    public function getRouteResolver(): \Closure
+    {
+        return $this->routeResolver ?: function () {
+            return null;
+        };
+    }
+
+    /**
+     * Set the route resolver callback.
+     */
+    public function setRouteResolver(\Closure $callback): static
+    {
+        $this->routeResolver = $callback;
+
+        return $this;
+    }
+
+    /**
+     * Get the host name.
+     */
+    public function getHost(): string
+    {
+        return $this->server('HTTP_HOST', 'localhost');
+    }
+
+    /**
+     * Determine if the current request URL and query string match a pattern.
+     */
+    public function fullUrlIs(string $pattern): bool
+    {
+        $url = $this->fullUrl();
+        
+        return Str::is($pattern, $url);
+    }
+
+    /**
+     * Determine if the current request URI matches a pattern.
+     */
+    public function is(string ...$patterns): bool
+    {
+        $path = $this->path();
+        
+        foreach ($patterns as $pattern) {
+            if (Str::is($pattern, $path)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     /**
