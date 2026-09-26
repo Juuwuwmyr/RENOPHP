@@ -9,6 +9,8 @@ use Horizon\Http\Response;
 use Horizon\Routing\Route;
 use Horizon\Routing\RouteCollection;
 use Horizon\Routing\RouteCompiler;
+use Horizon\Routing\RouteGroup;
+use Horizon\Routing\ResourceRouteRegistrar;
 use Horizon\Routing\Exceptions\RouteNotFoundException;
 use Horizon\Routing\Exceptions\MethodNotAllowedException;
 use Closure;
@@ -369,7 +371,15 @@ class Router
     // ====================================================================
 
     /**
-     * Create a route group.
+     * Create a route group with enhanced features.
+     */
+    public function newGroup(array $attributes = []): RouteGroup
+    {
+        return new RouteGroup($this, $attributes);
+    }
+
+    /**
+     * Create and execute a route group.
      */
     public function group(array $attributes, Closure $callback): void
     {
@@ -461,8 +471,22 @@ class Router
     // ====================================================================
 
     /**
-     * Register resource routes.
+     * Register enhanced resource routes.
      */
+    public function resourceAdvanced(string $name, string $controller, array $options = []): ResourceRouteRegistrar
+    {
+        $group = $this->newGroup();
+        return $group->resource($name, $controller, $options);
+    }
+
+    /**
+     * Register API resource routes.
+     */
+    public function apiResource(string $name, string $controller, array $options = []): ResourceRouteRegistrar
+    {
+        $group = $this->newGroup();
+        return $group->apiResource($name, $controller, $options);
+    }
     public function resource(string $name, string $controller, array $options = []): void
     {
         $actions = $options['only'] ?? ['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'];

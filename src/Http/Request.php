@@ -49,6 +49,16 @@ class Request
     protected array $headers = [];
 
     /**
+     * The matched route for this request.
+     */
+    protected ?\Horizon\Routing\Route $route = null;
+
+    /**
+     * Route parameters.
+     */
+    protected array $routeParameters = [];
+
+    /**
      * Server parameters.
      */
     protected array $server = [];
@@ -84,8 +94,9 @@ class Request
     protected array $attributes = [];
 
     /**
-     * Create a new Request instance.
+     * The matched route for this request.
      */
+    protected ?\Horizon\Routing\Route $route = null;
     public function __construct(
         array $query = [],
         array $request = [],
@@ -673,6 +684,22 @@ class Request
     public function getContent(): string
     {
         return $this->content ?? '';
+    }
+
+    /**
+     * Set the matched route.
+     */
+    public function setRoute(\Horizon\Routing\Route $route): void
+    {
+        $this->route = $route;
+    }
+
+    /**
+     * Get the matched route.
+     */
+    public function getMatchedRoute(): ?\Horizon\Routing\Route
+    {
+        return $this->route;
     }
 
     // ====================================================================

@@ -4,571 +4,573 @@ declare(strict_types=1);
 
 namespace Horizon\Foundation;
 
-use Horizon\Container\Container;
-use Horizon\Contracts\Foundation\ApplicationInterface;
-use Horizon\Support\ServiceProvider;
-use RuntimeException;
+use Horizon\Http\Kernel;
+use Horizon\Http\Request;
+use Horizon\Http\Response;
+use Horizon\Routing\Router;
+use Horizon\Routing\RouteGroup;
+use Horizon\Routing\RouteParameterBinder;
+use Horizon\Middleware\MiddlewareManager;
+use Closure;
 
-class Application extends Container implements ApplicationInterface
+/**
+ * Application
+ * 
+ * Main application class that provides a high-level interface
+ * for configuring and running the HTTP kernel.
+ */
+class Application
 {
     /**
-     * The Horizon framework version.
+     * The HTTP kernel instance.
      */
-    public const VERSION = '1.0.0-dev';
+    protected Kernel $kernel;
 
     /**
-     * The base path for the application installation.
+     * The router instance.
      */
-    protected string $basePath;
+    protected Router $router;
 
     /**
-     * The custom storage path defined by the developer.
+     * Application configuration.
      */
-    protected ?string $storagePath = null;
+    protected array $config = [];
 
     /**
-     * The custom database path defined by the developer.
+     * Service providers.
      */
-    protected ?string $databasePath = null;
+    protected array $providers = [];
 
     /**
-     * The custom lang path defined by the developer.
-     */
-    protected ?string $langPath = null;
-
-    /**
-     * The custom public path defined by the developer.
-     */
-    protected ?string $publicPath = null;
-
-    /**
-     * The environment file to load during bootstrapping.
-     */
-    protected string $environmentFile = '.env';
-
-    /**
-     * The current application environment.
-     */
-    protected ?string $environment = null;
-
-    /**
-     * Indicates if the application has been "booted".
+     * Application state.
      */
     protected bool $booted = false;
 
     /**
-     * All of the registered service providers.
+     * Base path of the application.
      */
-    protected array $serviceProviders = [];
+    protected string $basePath;
 
     /**
-     * The names of the loaded service providers.
+     * Environment name.
      */
-    protected array $loadedProviders = [];
+    protected string $environment;
 
     /**
-     * The deferred services and their providers.
+     * Debug mode flag.
      */
-    protected array $deferredServices = [];
+    protected bool $debug;
 
     /**
-     * The after loading environment callbacks.
+     * Create a new Application instance.
      */
-    protected array $afterLoadingEnvironmentCallbacks = [];
-
-    /**
-     * The before bootstrapping callbacks.
-     */
-    protected array $beforeBootstrappingCallbacks = [];
-
-    /**
-     * The after bootstrapping callbacks.
-     */
-    protected array $afterBootstrappingCallbacks = [];
-
-    /**
-     * Create a new application instance.
-     */
-    public function __construct(?string $basePath = null)
+    public function __construct(string $basePath = '')
     {
-        if ($basePath) {
-            $this->setBasePath($basePath);
+        $this->basePath = $basePath ?: getcwd();
+        $this->environment = $_ENV['APP_ENV'] ?? 'production';
+        $this->debug = filter_var($_ENV['APP_DEBUG'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+        $this->bootstrapApplication();
+    }
+
+    // ====================================================================
+    // Application Bootstrap
+    // ====================================================================
+
+    /**
+     * Bootstrap the application.
+     */
+    protected function bootstrapApplication(): void
+    {
+        // Create core instances
+        $this->router = new Router();
+        $middleware = new MiddlewareManager();
+        $binder = new RouteParameterBinder();
+
+        // Create kernel
+        $this->kernel = new Kernel($this->router, $middleware, $binder);
+
+        // Load default configuration
+        $this->loadDefaultConfiguration();
+
+        // Register default exception handlers
+        $this->registerDefaultExceptionHandlers();
+
+        // Register application hooks
+        $this->registerApplicationHooks();
+    }
+
+    /**
+     * Load default configuration.
+     */
+    protected function loadDefaultConfiguration(): void
+    {
+        $this->config = [
+            'app' => [
+                'name' => $_ENV['APP_NAME'] ?? 'Horizon Application',
+                'env' => $this->environment,
+                'debug' => $this->debug,
+                'url' => $_ENV['APP_URL'] ?? 'http://localhost',
+                'timezone' => $_ENV['APP_TIMEZONE'] ?? 'UTC',
+            ],
+            'routing' => [
+                'cache' => $_ENV['ROUTE_CACHE'] ?? false,
+                'cache_file' => $this->basePath . '/storage/cache/routes.php',
+            ],
+            'middleware' => [
+                'global' => [],
+                'groups' => [
+                    'web' => ['security', 'csrf'],
+                    'api' => ['cors', 'throttle'],
+                ],
+                'aliases' => [
+                    'auth' => 'AuthMiddleware',
+                    'cors' => \Horizon\Middleware\CorsMiddleware::class,
+                    'security' => \Horizon\Middleware\SecurityMiddleware::class,
+                    'throttle' => \Horizon\Middleware\ThrottleMiddleware::class,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Register default exception handlers.
+     */
+    protected function registerDefaultExceptionHandlers(): void
+    {
+        // Custom exception handlers can be registered here
+        $this->kernel->registerExceptionHandler(\InvalidArgumentException::class, function ($exception, $request) {
+            return Response::json([
+                'error' => 'Invalid Argument',
+                'message' => $exception->getMessage(),
+            ], 400);
+        });
+    }
+
+    /**
+     * Register application lifecycle hooks.
+     */
+    protected function registerApplicationHooks(): void
+    {
+        // Request logging
+        $this->kernel->hook('request.start', function (Request $request) {
+            if ($this->debug) {
+                error_log("[{$request->method()}] {$request->fullUrl()}");
+            }
+        });
+
+        // Response logging
+        $this->kernel->hook('request.handled', function (Request $request, Response $response) {
+            if ($this->debug) {
+                error_log("[{$response->getStatusCode()}] {$request->method()} {$request->path()}");
+            }
+        });
+
+        // Exception logging
+        $this->kernel->hook('exception.thrown', function (Request $request, \Throwable $exception) {
+            error_log("Exception: " . $exception->getMessage() . " in " . $exception->getFile() . ":" . $exception->getLine());
+        });
+    }
+
+    // ====================================================================
+    // Request Handling
+    // ====================================================================
+
+    /**
+     * Handle an HTTP request.
+     */
+    public function handle(Request $request): Response
+    {
+        $this->bootIfNotBooted();
+        return $this->kernel->handle($request);
+    }
+
+    /**
+     * Handle request from global variables.
+     */
+    public function handleRequest(): Response
+    {
+        $request = Request::createFromGlobals();
+        return $this->handle($request);
+    }
+
+    /**
+     * Run the application.
+     */
+    public function run(): void
+    {
+        $request = Request::createFromGlobals();
+        $response = $this->handle($request);
+        $this->kernel->sendResponse($response);
+    }
+
+    // ====================================================================
+    // Routing Interface
+    // ====================================================================
+
+    /**
+     * Register a GET route.
+     */
+    public function get(string $uri, mixed $action): \Horizon\Routing\Route
+    {
+        return $this->router->get($uri, $action);
+    }
+
+    /**
+     * Register a POST route.
+     */
+    public function post(string $uri, mixed $action): \Horizon\Routing\Route
+    {
+        return $this->router->post($uri, $action);
+    }
+
+    /**
+     * Register a PUT route.
+     */
+    public function put(string $uri, mixed $action): \Horizon\Routing\Route
+    {
+        return $this->router->put($uri, $action);
+    }
+
+    /**
+     * Register a PATCH route.
+     */
+    public function patch(string $uri, mixed $action): \Horizon\Routing\Route
+    {
+        return $this->router->patch($uri, $action);
+    }
+
+    /**
+     * Register a DELETE route.
+     */
+    public function delete(string $uri, mixed $action): \Horizon\Routing\Route
+    {
+        return $this->router->delete($uri, $action);
+    }
+
+    /**
+     * Register a route for any HTTP method.
+     */
+    public function any(string $uri, mixed $action): \Horizon\Routing\Route
+    {
+        return $this->router->any($uri, $action);
+    }
+
+    /**
+     * Register a route for multiple HTTP methods.
+     */
+    public function match(array $methods, string $uri, mixed $action): \Horizon\Routing\Route
+    {
+        return $this->router->match($methods, $uri, $action);
+    }
+
+    /**
+     * Create a route group.
+     */
+    public function group(array $attributes, Closure $callback): void
+    {
+        $this->router->group($attributes, $callback);
+    }
+
+    /**
+     * Create a new route group.
+     */
+    public function newGroup(array $attributes = []): RouteGroup
+    {
+        return $this->router->newGroup($attributes);
+    }
+
+    /**
+     * Register a resource route.
+     */
+    public function resource(string $name, string $controller, array $options = []): \Horizon\Routing\ResourceRouteRegistrar
+    {
+        return $this->router->resourceAdvanced($name, $controller, $options);
+    }
+
+    /**
+     * Register an API resource route.
+     */
+    public function apiResource(string $name, string $controller, array $options = []): \Horizon\Routing\ResourceRouteRegistrar
+    {
+        return $this->router->apiResource($name, $controller, $options);
+    }
+
+    // ====================================================================
+    // Middleware Management
+    // ====================================================================
+
+    /**
+     * Add global middleware.
+     */
+    public function middleware(string|array $middleware): void
+    {
+        $middleware = is_array($middleware) ? $middleware : [$middleware];
+        $this->kernel->registerGlobalMiddleware($middleware);
+    }
+
+    /**
+     * Register route middleware.
+     */
+    public function routeMiddleware(array $middleware): void
+    {
+        $this->kernel->registerRouteMiddleware($middleware);
+    }
+
+    /**
+     * Register middleware groups.
+     */
+    public function middlewareGroups(array $groups): void
+    {
+        $this->kernel->registerMiddlewareGroups($groups);
+    }
+
+    // ====================================================================
+    // Configuration
+    // ====================================================================
+
+    /**
+     * Set configuration value.
+     */
+    public function config(string $key, mixed $value = null): mixed
+    {
+        if ($value === null) {
+            return $this->getConfig($key);
         }
 
-        $this->registerBaseBindings();
-        $this->registerBaseServiceProviders();
-        $this->registerCoreContainerAliases();
-    }
-
-    /**
-     * Get the version number of the application.
-     */
-    public function version(): string
-    {
-        return static::VERSION;
-    }
-
-    /**
-     * Set the base path for the application.
-     */
-    public function setBasePath(string $basePath): static
-    {
-        $this->basePath = rtrim($basePath, '\/');
-
-        $this->bindPathsInContainer();
-
+        $this->setConfig($key, $value);
         return $this;
     }
 
     /**
-     * Bind all of the application paths in the container.
+     * Get configuration value.
      */
-    protected function bindPathsInContainer(): void
+    protected function getConfig(string $key, mixed $default = null): mixed
     {
-        $this->instance('path', $this->path());
-        $this->instance('path.base', $this->basePath());
-        $this->instance('path.config', $this->configPath());
-        $this->instance('path.public', $this->publicPath());
-        $this->instance('path.resources', $this->resourcePath());
-        $this->instance('path.storage', $this->storagePath());
-        $this->instance('path.database', $this->databasePath());
-        $this->instance('path.lang', $this->langPath());
-        $this->instance('path.bootstrap', $this->bootstrapPath());
+        $keys = explode('.', $key);
+        $value = $this->config;
+
+        foreach ($keys as $segment) {
+            if (!is_array($value) || !array_key_exists($segment, $value)) {
+                return $default;
+            }
+            $value = $value[$segment];
+        }
+
+        return $value;
     }
 
     /**
-     * Get the path to the application "app" directory.
+     * Set configuration value.
      */
-    public function path(string $path = ''): string
+    protected function setConfig(string $key, mixed $value): void
     {
-        $appPath = $this->basePath . DIRECTORY_SEPARATOR . 'app';
+        $keys = explode('.', $key);
+        $config = &$this->config;
 
-        return $path === '' ? $appPath : $appPath . DIRECTORY_SEPARATOR . $path;
+        foreach ($keys as $segment) {
+            if (!isset($config[$segment]) || !is_array($config[$segment])) {
+                $config[$segment] = [];
+            }
+            $config = &$config[$segment];
+        }
+
+        $config = $value;
     }
 
     /**
-     * Get the base path of the application installation.
+     * Load configuration from file.
+     */
+    public function loadConfig(string $file): void
+    {
+        if (file_exists($file)) {
+            $config = require $file;
+            if (is_array($config)) {
+                $this->config = array_merge_recursive($this->config, $config);
+            }
+        }
+    }
+
+    // ====================================================================
+    // Environment and Paths
+    // ====================================================================
+
+    /**
+     * Get the application base path.
      */
     public function basePath(string $path = ''): string
     {
-        return $this->basePath . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return $this->basePath . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : '');
     }
 
     /**
-     * Get the path to the bootstrap directory.
-     */
-    public function bootstrapPath(string $path = ''): string
-    {
-        return $this->basePath . DIRECTORY_SEPARATOR . 'bootstrap' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
-    }
-
-    /**
-     * Get the path to the application configuration files.
-     */
-    public function configPath(string $path = ''): string
-    {
-        return $this->basePath . DIRECTORY_SEPARATOR . 'config' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
-    }
-
-    /**
-     * Get the path to the database directory.
-     */
-    public function databasePath(string $path = ''): string
-    {
-        return ($this->databasePath ?? $this->basePath . DIRECTORY_SEPARATOR . 'database') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
-    }
-
-    /**
-     * Get the path to the language files.
-     */
-    public function langPath(string $path = ''): string
-    {
-        return $this->resourcePath() . DIRECTORY_SEPARATOR . 'lang' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
-    }
-
-    /**
-     * Get the path to the public directory.
-     */
-    public function publicPath(string $path = ''): string
-    {
-        return $this->basePath . DIRECTORY_SEPARATOR . 'public' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
-    }
-
-    /**
-     * Get the path to the resources directory.
-     */
-    public function resourcePath(string $path = ''): string
-    {
-        return $this->basePath . DIRECTORY_SEPARATOR . 'resources' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
-    }
-
-    /**
-     * Get the path to the storage directory.
+     * Get the application storage path.
      */
     public function storagePath(string $path = ''): string
     {
-        return ($this->storagePath ?? $this->basePath . DIRECTORY_SEPARATOR . 'storage') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return $this->basePath('storage') . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : '');
     }
 
     /**
-     * Get or check the current application environment.
+     * Get the application public path.
      */
-    public function environment(string ...$environments): string|bool
+    public function publicPath(string $path = ''): string
     {
-        if (count($environments) > 0) {
-            return in_array($this->environment(), $environments);
-        }
-
-        return $this->environment ?: 'production';
+        return $this->basePath('public') . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : '');
     }
 
     /**
-     * Detect the application's current environment.
+     * Get the application environment.
      */
-    public function detectEnvironment(callable $callback): string
+    public function environment(): string
     {
-        return $this->environment = $callback();
+        return $this->environment;
     }
 
     /**
-     * Determine if the application is running in the console.
+     * Check if the application is in a specific environment.
      */
-    public function runningInConsole(): bool
+    public function isEnvironment(string ...$environments): bool
     {
-        return php_sapi_name() === 'cli' || php_sapi_name() === 'phpdbg';
+        return in_array($this->environment, $environments);
     }
 
     /**
-     * Determine if the application is in debug mode.
+     * Check if debug mode is enabled.
      */
-    public function hasDebugModeEnabled(): bool
+    public function isDebug(): bool
     {
-        return (bool) $this->make('config')->get('app.debug', false);
+        return $this->debug;
     }
 
-    /**
-     * Get the application namespace.
-     */
-    public function getNamespace(): string
-    {
-        if (!is_null($namespace = $this->make('config')->get('app.namespace'))) {
-            return $namespace;
-        }
-
-        $composer = json_decode(file_get_contents($this->basePath('composer.json')), true);
-
-        foreach ((array) data_get($composer, 'autoload.psr-4') as $namespace => $path) {
-            foreach ((array) $path as $pathChoice) {
-                if (realpath($this->path()) === realpath($this->basePath($pathChoice))) {
-                    return $namespace;
-                }
-            }
-        }
-
-        throw new RuntimeException('Unable to detect application namespace.');
-    }
+    // ====================================================================
+    // Application Lifecycle
+    // ====================================================================
 
     /**
-     * Register the basic bindings into the container.
+     * Boot the application if not already booted.
      */
-    protected function registerBaseBindings(): void
+    protected function bootIfNotBooted(): void
     {
-        static::setInstance($this);
-
-        $this->instance('app', $this);
-        $this->instance(Container::class, $this);
-        // Package manifest will be implemented in later phases
-    }
-
-    /**
-     * Register the core service providers.
-     */
-    protected function registerBaseServiceProviders(): void
-    {
-        // Register essential service providers here
-        // These will be implemented in later phases
-    }
-
-    /**
-     * Register the core container aliases.
-     */
-    protected function registerCoreContainerAliases(): void
-    {
-        foreach ([
-            'app' => [self::class, \Horizon\Contracts\Foundation\ApplicationInterface::class, \Horizon\Contracts\Container\ContainerInterface::class, \Psr\Container\ContainerInterface::class],
-            'config' => [\Horizon\Config\Repository::class, \Horizon\Contracts\Config\ConfigInterface::class],
-            'request' => [\Horizon\Http\Request::class, \Horizon\Contracts\Http\RequestInterface::class],
-            'response' => [\Horizon\Http\Response::class, \Horizon\Contracts\Http\ResponseInterface::class],
-        ] as $key => $aliases) {
-            foreach ($aliases as $alias) {
-                $this->alias($key, $alias);
-            }
+        if (!$this->booted) {
+            $this->boot();
         }
     }
 
     /**
-     * Register all of the configured providers.
-     */
-    public function registerConfiguredProviders(): void
-    {
-        $providers = $this->make('config')->get('app.providers', []);
-
-        foreach ($providers as $provider) {
-            $this->register($provider);
-        }
-    }
-
-    /**
-     * Register a service provider with the application.
-     */
-    public function register(mixed $provider, bool $force = false): mixed
-    {
-        if (($registered = $this->getProvider($provider)) && !$force) {
-            return $registered;
-        }
-
-        if (is_string($provider)) {
-            $provider = $this->resolveProvider($provider);
-        }
-
-        $provider->register();
-
-        if (property_exists($provider, 'bindings')) {
-            foreach ($provider->bindings as $key => $value) {
-                $this->bind($key, $value);
-            }
-        }
-
-        if (property_exists($provider, 'singletons')) {
-            foreach ($provider->singletons as $key => $value) {
-                $this->singleton($key, $value);
-            }
-        }
-
-        $this->markAsRegistered($provider);
-
-        if ($this->isBooted()) {
-            $this->bootProvider($provider);
-        }
-
-        return $provider;
-    }
-
-    /**
-     * Get the registered service provider instance if it exists.
-     */
-    public function getProvider(mixed $provider): ?ServiceProvider
-    {
-        return array_values($this->getProviders($provider))[0] ?? null;
-    }
-
-    /**
-     * Get the registered service provider instances if any exist.
-     */
-    public function getProviders(mixed $provider): array
-    {
-        $name = is_string($provider) ? $provider : get_class($provider);
-
-        return array_filter($this->serviceProviders, function ($value) use ($name) {
-            return $value instanceof $name;
-        });
-    }
-
-    /**
-     * Resolve a service provider instance from the class name.
-     */
-    public function resolveProvider(string $provider): ServiceProvider
-    {
-        return new $provider($this);
-    }
-
-    /**
-     * Mark the given provider as registered.
-     */
-    protected function markAsRegistered(ServiceProvider $provider): void
-    {
-        $this->serviceProviders[] = $provider;
-        $this->loadedProviders[get_class($provider)] = true;
-    }
-
-    /**
-     * Boot the application's service providers.
+     * Boot the application.
      */
     public function boot(): void
     {
-        if ($this->isBooted()) {
+        if ($this->booted) {
             return;
         }
 
-        array_walk($this->serviceProviders, function ($p) {
-            $this->bootProvider($p);
-        });
+        // Boot kernel
+        $this->kernel->boot();
+
+        // Register middleware configuration
+        $this->applyMiddlewareConfiguration();
+
+        // Boot service providers
+        $this->bootServiceProviders();
 
         $this->booted = true;
     }
 
     /**
-     * Boot the given service provider.
+     * Apply middleware configuration.
      */
-    protected function bootProvider(ServiceProvider $provider): void
+    protected function applyMiddlewareConfiguration(): void
     {
-        $provider->callBootingCallbacks();
+        $middlewareConfig = $this->config['middleware'] ?? [];
 
-        if (method_exists($provider, 'boot')) {
-            $this->call([$provider, 'boot']);
+        if (isset($middlewareConfig['global'])) {
+            $this->kernel->registerGlobalMiddleware($middlewareConfig['global']);
         }
 
-        $provider->callBootedCallbacks();
+        if (isset($middlewareConfig['aliases'])) {
+            $this->kernel->registerRouteMiddleware($middlewareConfig['aliases']);
+        }
+
+        if (isset($middlewareConfig['groups'])) {
+            $this->kernel->registerMiddlewareGroups($middlewareConfig['groups']);
+        }
     }
 
     /**
-     * Determine if the application has booted.
+     * Boot service providers.
+     */
+    protected function bootServiceProviders(): void
+    {
+        foreach ($this->providers as $provider) {
+            if (method_exists($provider, 'boot')) {
+                $provider->boot($this);
+            }
+        }
+    }
+
+    /**
+     * Register a service provider.
+     */
+    public function register(object $provider): void
+    {
+        $this->providers[] = $provider;
+
+        if (method_exists($provider, 'register')) {
+            $provider->register($this);
+        }
+    }
+
+    /**
+     * Check if application is booted.
      */
     public function isBooted(): bool
     {
         return $this->booted;
     }
 
+    // ====================================================================
+    // Utility Methods
+    // ====================================================================
+
     /**
-     * Register a callback to be run after loading the environment.
+     * Get application statistics.
      */
-    public function afterLoadingEnvironment(callable $callback): void
+    public function getStats(): array
     {
-        $this->afterLoadingEnvironmentCallbacks[] = $callback;
+        return [
+            'environment' => $this->environment,
+            'debug' => $this->debug,
+            'booted' => $this->booted,
+            'providers_count' => count($this->providers),
+            'kernel_stats' => $this->kernel->getStats(),
+            'router_stats' => $this->router->getStats(),
+            'config_keys' => array_keys($this->config),
+        ];
     }
 
     /**
-     * Register a callback to be run before a bootstrapper.
+     * Get the kernel instance.
      */
-    public function beforeBootstrapping(string $bootstrapper, callable $callback): void
+    public function getKernel(): Kernel
     {
-        $this->beforeBootstrappingCallbacks[$bootstrapper][] = $callback;
+        return $this->kernel;
     }
 
     /**
-     * Register a callback to be run after a bootstrapper.
+     * Get the router instance.
      */
-    public function afterBootstrapping(string $bootstrapper, callable $callback): void
+    public function getRouter(): Router
     {
-        $this->afterBootstrappingCallbacks[$bootstrapper][] = $callback;
+        return $this->router;
     }
 
     /**
-     * Fire the callbacks for the after loading environment event.
+     * Create application instance from environment.
      */
-    protected function fireAfterLoadingEnvironmentCallbacks(): void
+    public static function create(string $basePath = ''): static
     {
-        foreach ($this->afterLoadingEnvironmentCallbacks as $callback) {
-            $callback($this);
-        }
-    }
-
-    /**
-     * Fire the callbacks for the before bootstrapping event.
-     */
-    protected function fireBeforeBootstrappingCallbacks(string $bootstrapper): void
-    {
-        foreach ($this->beforeBootstrappingCallbacks[$bootstrapper] ?? [] as $callback) {
-            $callback($this);
-        }
-    }
-
-    /**
-     * Fire the callbacks for the after bootstrapping event.
-     */
-    protected function fireAfterBootstrappingCallbacks(string $bootstrapper): void
-    {
-        foreach ($this->afterBootstrappingCallbacks[$bootstrapper] ?? [] as $callback) {
-            $callback($this);
-        }
-    }
-
-    /**
-     * Load environment file in given directory.
-     */
-    public function loadEnvironmentFrom(string $file): static
-    {
-        $this->environmentFile = $file;
-
-        return $this;
-    }
-
-    /**
-     * Get the environment file the application is using.
-     */
-    public function environmentFile(): string
-    {
-        return $this->environmentFile ?: '.env';
-    }
-
-    /**
-     * Determine if the application has been bootstrapped before.
-     */
-    public function hasBeenBootstrapped(): bool
-    {
-        return $this->booted;
-    }
-
-    /**
-     * Bootstrap the application with the given bootstrappers.
-     */
-    public function bootstrapWith(array $bootstrappers): void
-    {
-        foreach ($bootstrappers as $bootstrapper) {
-            $this->make($bootstrapper)->bootstrap($this);
-        }
-    }
-
-    /**
-     * Determine if middleware should be skipped.
-     */
-    public function shouldSkipMiddleware(): bool
-    {
-        return false; // Will be implemented later
-    }
-
-    /**
-     * Get the fully qualified path to the environment file.
-     */
-    public function environmentFilePath(): string
-    {
-        return $this->basePath() . DIRECTORY_SEPARATOR . $this->environmentFile();
-    }
-
-    /**
-     * Determine if the application configuration is cached.
-     */
-    public function configurationIsCached(): bool
-    {
-        return false; // Will be implemented in later phases
-    }
-
-    /**
-     * Determine if the application routes are cached.
-     */
-    public function routesAreCached(): bool
-    {
-        return file_exists($this->getCachedRoutesPath());
-    }
-
-    /**
-     * Get the path to the cached routes file.
-     */
-    public function getCachedRoutesPath(): string
-    {
-        return $this->bootstrapPath('cache/routes.php');
-    }
-
-    /**
-     * Terminate the application.
-     */
-    public function terminate(): void
-    {
-        // Terminate all registered services
-        foreach ($this->serviceProviders as $provider) {
-            if (method_exists($provider, 'terminate')) {
-                $provider->terminate();
-            }
-        }
+        return new static($basePath);
     }
 }
