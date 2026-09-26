@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Schema;
+namespace Reno\Database\Schema;
 
-use Horizon\Contracts\Database\ColumnDefinitionInterface;
+use Reno\Contracts\Database\ColumnDefinitionInterface;
 
 /**
  * Column Definition

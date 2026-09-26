@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Query\Concerns;
+namespace Reno\Database\Query\Concerns;
 
 use Closure;
-use Horizon\Database\Query\Expression;
+use Reno\Database\Query\Expression;
 
 /**
  * Builds Queries Trait

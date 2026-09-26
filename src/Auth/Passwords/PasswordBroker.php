@@ -1,8 +1,8 @@
 <?php
 
-namespace Horizon\Auth\Passwords;
+namespace Reno\Auth\Passwords;
 
-use Horizon\Auth\Contracts\UserProvider;
+use Reno\Auth\Contracts\UserProvider;
 use Closure;
 
 /**
@@ -92,7 +92,7 @@ class PasswordBroker
         // Validate the credentials and token
         $user = $this->validateReset($credentials);
 
-        if (!$user instanceof \Horizon\Auth\Contracts\Authenticatable) {
+        if (!$user instanceof \Reno\Auth\Contracts\Authenticatable) {
             return $user;
         }
 
@@ -110,7 +110,7 @@ class PasswordBroker
      * Validate a password reset for the given credentials
      *
      * @param array $credentials
-     * @return \Horizon\Auth\Contracts\Authenticatable|string
+     * @return \Reno\Auth\Contracts\Authenticatable|string
      */
     protected function validateReset(array $credentials)
     {
@@ -129,7 +129,7 @@ class PasswordBroker
      * Get the user for the given credentials
      *
      * @param array $credentials
-     * @return \Horizon\Auth\Contracts\Authenticatable|null
+     * @return \Reno\Auth\Contracts\Authenticatable|null
      */
     protected function getUser(array $credentials)
     {
@@ -137,7 +137,7 @@ class PasswordBroker
 
         $user = $this->users->retrieveByCredentials($credentials);
 
-        if ($user && !$user instanceof \Horizon\Auth\Contracts\Authenticatable) {
+        if ($user && !$user instanceof \Reno\Auth\Contracts\Authenticatable) {
             throw new \UnexpectedValueException('User must implement Authenticatable interface.');
         }
 
@@ -147,7 +147,7 @@ class PasswordBroker
     /**
      * Create a new password reset token
      *
-     * @param \Horizon\Auth\Contracts\Authenticatable $user
+     * @param \Reno\Auth\Contracts\Authenticatable $user
      * @return string
      */
     public function createToken($user): string
@@ -158,7 +158,7 @@ class PasswordBroker
     /**
      * Delete password reset tokens
      *
-     * @param \Horizon\Auth\Contracts\Authenticatable $user
+     * @param \Reno\Auth\Contracts\Authenticatable $user
      * @return void
      */
     public function deleteToken($user): void
@@ -169,7 +169,7 @@ class PasswordBroker
     /**
      * Validate a password reset token
      *
-     * @param \Horizon\Auth\Contracts\Authenticatable $user
+     * @param \Reno\Auth\Contracts\Authenticatable $user
      * @param string $token
      * @return bool
      */

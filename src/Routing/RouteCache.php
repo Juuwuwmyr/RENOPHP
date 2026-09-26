@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Routing;
+namespace Reno\Routing;
 
-use Horizon\Routing\RouteCollection;
-use Horizon\Routing\Route;
-use Horizon\Routing\RouteCompiler;
+use Reno\Routing\RouteCollection;
+use Reno\Routing\Route;
+use Reno\Routing\RouteCompiler;
 use InvalidArgumentException;
 
 /**

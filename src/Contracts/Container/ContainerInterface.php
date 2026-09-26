@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Contracts\Container;
+namespace Reno\Contracts\Container;
 
 use Closure;
 

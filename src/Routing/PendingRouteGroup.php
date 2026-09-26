@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Routing;
+namespace Reno\Routing;
 
 use Closure;
 

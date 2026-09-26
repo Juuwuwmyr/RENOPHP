@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Console\Commands;
+namespace Reno\Console\Commands;
 
-use Horizon\Console\Command;
-use Horizon\Support\Str;
+use Reno\Console\Command;
+use Reno\Support\Str;
 
 /**
  * Make Factory Command
@@ -157,7 +157,7 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Models\{{ modelClass }};
-use Horizon\Database\Factories\Factory;
+use Reno\Database\Factories\Factory;
 
 /**
  * {{ class }}

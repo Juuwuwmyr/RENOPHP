@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Routing;
+namespace Reno\Routing;
 
-use Horizon\Contracts\Http\RequestInterface;
-use Horizon\Contracts\Routing\RouteCollectionInterface;
-use Horizon\Contracts\Routing\RouteInterface;
-use Horizon\Http\Exceptions\MethodNotAllowedException;
-use Horizon\Http\Exceptions\NotFoundHttpException;
+use Reno\Contracts\Http\RequestInterface;
+use Reno\Contracts\Routing\RouteCollectionInterface;
+use Reno\Contracts\Routing\RouteInterface;
+use Reno\Http\Exceptions\MethodNotAllowedException;
+use Reno\Http\Exceptions\NotFoundHttpException;
 
 class CachedRouteCollection implements RouteCollectionInterface
 {

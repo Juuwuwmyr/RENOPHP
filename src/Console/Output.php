@@ -1,6 +1,6 @@
 <?php
 
-namespace Horizon\Console;
+namespace Reno\Console;
 
 /**
  * Output

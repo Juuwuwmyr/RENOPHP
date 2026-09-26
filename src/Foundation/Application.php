@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Foundation;
+namespace Reno\Foundation;
 
-use Horizon\Http\Kernel;
-use Horizon\Http\Request;
-use Horizon\Http\Response;
-use Horizon\Routing\Router;
-use Horizon\Routing\RouteGroup;
-use Horizon\Routing\RouteParameterBinder;
-use Horizon\Middleware\MiddlewareManager;
+use Reno\Http\Kernel;
+use Reno\Http\Request;
+use Reno\Http\Response;
+use Reno\Routing\Router;
+use Reno\Routing\RouteGroup;
+use Reno\Routing\RouteParameterBinder;
+use Reno\Middleware\MiddlewareManager;
 use Closure;
 
 /**
@@ -125,9 +125,9 @@ class Application
                 ],
                 'aliases' => [
                     'auth' => 'AuthMiddleware',
-                    'cors' => \Horizon\Middleware\CorsMiddleware::class,
-                    'security' => \Horizon\Middleware\SecurityMiddleware::class,
-                    'throttle' => \Horizon\Middleware\ThrottleMiddleware::class,
+                    'cors' => \Reno\Middleware\CorsMiddleware::class,
+                    'security' => \Reno\Middleware\SecurityMiddleware::class,
+                    'throttle' => \Reno\Middleware\ThrottleMiddleware::class,
                 ],
             ],
         ];
@@ -211,7 +211,7 @@ class Application
     /**
      * Register a GET route.
      */
-    public function get(string $uri, mixed $action): \Horizon\Routing\Route
+    public function get(string $uri, mixed $action): \Reno\Routing\Route
     {
         return $this->router->get($uri, $action);
     }
@@ -219,7 +219,7 @@ class Application
     /**
      * Register a POST route.
      */
-    public function post(string $uri, mixed $action): \Horizon\Routing\Route
+    public function post(string $uri, mixed $action): \Reno\Routing\Route
     {
         return $this->router->post($uri, $action);
     }
@@ -227,7 +227,7 @@ class Application
     /**
      * Register a PUT route.
      */
-    public function put(string $uri, mixed $action): \Horizon\Routing\Route
+    public function put(string $uri, mixed $action): \Reno\Routing\Route
     {
         return $this->router->put($uri, $action);
     }
@@ -235,7 +235,7 @@ class Application
     /**
      * Register a PATCH route.
      */
-    public function patch(string $uri, mixed $action): \Horizon\Routing\Route
+    public function patch(string $uri, mixed $action): \Reno\Routing\Route
     {
         return $this->router->patch($uri, $action);
     }
@@ -243,7 +243,7 @@ class Application
     /**
      * Register a DELETE route.
      */
-    public function delete(string $uri, mixed $action): \Horizon\Routing\Route
+    public function delete(string $uri, mixed $action): \Reno\Routing\Route
     {
         return $this->router->delete($uri, $action);
     }
@@ -251,7 +251,7 @@ class Application
     /**
      * Register a route for any HTTP method.
      */
-    public function any(string $uri, mixed $action): \Horizon\Routing\Route
+    public function any(string $uri, mixed $action): \Reno\Routing\Route
     {
         return $this->router->any($uri, $action);
     }
@@ -259,7 +259,7 @@ class Application
     /**
      * Register a route for multiple HTTP methods.
      */
-    public function match(array $methods, string $uri, mixed $action): \Horizon\Routing\Route
+    public function match(array $methods, string $uri, mixed $action): \Reno\Routing\Route
     {
         return $this->router->match($methods, $uri, $action);
     }
@@ -283,7 +283,7 @@ class Application
     /**
      * Register a resource route.
      */
-    public function resource(string $name, string $controller, array $options = []): \Horizon\Routing\ResourceRouteRegistrar
+    public function resource(string $name, string $controller, array $options = []): \Reno\Routing\ResourceRouteRegistrar
     {
         return $this->router->resourceAdvanced($name, $controller, $options);
     }
@@ -291,7 +291,7 @@ class Application
     /**
      * Register an API resource route.
      */
-    public function apiResource(string $name, string $controller, array $options = []): \Horizon\Routing\ResourceRouteRegistrar
+    public function apiResource(string $name, string $controller, array $options = []): \Reno\Routing\ResourceRouteRegistrar
     {
         return $this->router->apiResource($name, $controller, $options);
     }

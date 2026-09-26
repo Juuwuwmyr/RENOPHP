@@ -1,6 +1,6 @@
 <?php
 
-namespace Horizon\Auth\Middleware;
+namespace Reno\Auth\Middleware;
 
 use Closure;
 
@@ -42,7 +42,7 @@ class Authenticate
      * @param mixed $request
      * @param array $guards
      * @return void
-     * @throws \Horizon\Auth\AuthenticationException
+     * @throws \Reno\Auth\AuthenticationException
      */
     protected function authenticate($request, array $guards): void
     {
@@ -66,11 +66,11 @@ class Authenticate
      * @param mixed $request
      * @param array $guards
      * @return void
-     * @throws \Horizon\Auth\AuthenticationException
+     * @throws \Reno\Auth\AuthenticationException
      */
     protected function unauthenticated($request, array $guards): void
     {
-        throw new \Horizon\Auth\AuthenticationException(
+        throw new \Reno\Auth\AuthenticationException(
             'Unauthenticated.',
             $guards,
             $this->redirectTo($request)

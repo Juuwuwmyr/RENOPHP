@@ -1,6 +1,6 @@
 <?php
 
-namespace Horizon\Auth\Concerns;
+namespace Reno\Auth\Concerns;
 
 /**
  * RegistersUsers
@@ -49,7 +49,7 @@ trait RegistersUsers
      * Get a validator for an incoming registration request
      *
      * @param array $data
-     * @return \Horizon\Validation\Validator
+     * @return \Reno\Validation\Validator
      */
     protected function validator(array $data)
     {
@@ -64,7 +64,7 @@ trait RegistersUsers
      * Create a new user instance after a valid registration
      *
      * @param array $data
-     * @return \Horizon\Auth\Contracts\Authenticatable
+     * @return \Reno\Auth\Contracts\Authenticatable
      */
     protected function create(array $data)
     {
@@ -90,7 +90,7 @@ trait RegistersUsers
     /**
      * Get the guard to be used during registration
      *
-     * @return \Horizon\Auth\Contracts\StatefulGuard
+     * @return \Reno\Auth\Contracts\StatefulGuard
      */
     protected function guard()
     {

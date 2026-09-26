@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Exceptions;
+namespace Reno\Exceptions;
 
-use Horizon\Contracts\Http\RequestInterface;
-use Horizon\Contracts\Http\ResponseInterface;
-use Horizon\Http\Exceptions\HttpException;
-use Horizon\Http\Response;
+use Reno\Contracts\Http\RequestInterface;
+use Reno\Contracts\Http\ResponseInterface;
+use Reno\Http\Exceptions\HttpException;
+use Reno\Http\Response;
 use Throwable;
 
 class Handler

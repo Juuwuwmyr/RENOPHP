@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Routing;
+namespace Reno\Routing;
 
-use Horizon\Contracts\Foundation\ApplicationInterface;
-use Horizon\Contracts\Http\RequestInterface;
-use Horizon\Contracts\Routing\RouteInterface;
-use Horizon\Container\BoundMethod;
-use Horizon\Http\Middleware\Pipeline;
+use Reno\Contracts\Foundation\ApplicationInterface;
+use Reno\Contracts\Http\RequestInterface;
+use Reno\Contracts\Routing\RouteInterface;
+use Reno\Container\BoundMethod;
+use Reno\Http\Middleware\Pipeline;
 use ReflectionClass;
 use ReflectionMethod;
 

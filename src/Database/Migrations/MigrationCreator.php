@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Migrations;
+namespace Reno\Database\Migrations;
 
 use Closure;
 use InvalidArgumentException;
-use Horizon\Support\Str;
+use Reno\Support\Str;
 
 /**
  * Migration Creator
@@ -165,9 +165,9 @@ class MigrationCreator
     {
         return '<?php
 
-use Horizon\Database\Migrations\Migration;
-use Horizon\Database\Schema\Blueprint;
-use Horizon\Support\Facades\Schema;
+use Reno\Database\Migrations\Migration;
+use Reno\Database\Schema\Blueprint;
+use Reno\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -196,9 +196,9 @@ return new class extends Migration
     {
         return '<?php
 
-use Horizon\Database\Migrations\Migration;
-use Horizon\Database\Schema\Blueprint;
-use Horizon\Support\Facades\Schema;
+use Reno\Database\Migrations\Migration;
+use Reno\Database\Schema\Blueprint;
+use Reno\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -230,9 +230,9 @@ return new class extends Migration
     {
         return '<?php
 
-use Horizon\Database\Migrations\Migration;
-use Horizon\Database\Schema\Blueprint;
-use Horizon\Support\Facades\Schema;
+use Reno\Database\Migrations\Migration;
+use Reno\Database\Schema\Blueprint;
+use Reno\Support\Facades\Schema;
 
 return new class extends Migration
 {

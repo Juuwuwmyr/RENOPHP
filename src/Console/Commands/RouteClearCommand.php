@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Console\Commands;
+namespace Reno\Console\Commands;
 
-use Horizon\Console\Command;
-use Horizon\Routing\RouteCache;
+use Reno\Console\Command;
+use Reno\Routing\RouteCache;
 
 class RouteClearCommand extends Command
 {

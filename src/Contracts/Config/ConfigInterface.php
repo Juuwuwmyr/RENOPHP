@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Contracts\Config;
+namespace Reno\Contracts\Config;
 
 interface ConfigInterface
 {
@@ -29,7 +29,7 @@ interface ConfigInterface
     /**
      * Get a required configuration value.
      * 
-     * @throws \Horizon\Exceptions\ConfigurationException
+     * @throws \Reno\Exceptions\ConfigurationException
      */
     public function required(string $key): mixed;
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace Horizon\Auth\Passwords;
+namespace Reno\Auth\Passwords;
 
-use Horizon\Auth\Contracts\Authenticatable;
+use Reno\Auth\Contracts\Authenticatable;
 
 /**
  * TokenRepositoryInterface

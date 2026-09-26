@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Http\Middleware;
+namespace Reno\Http\Middleware;
 
-use Horizon\Contracts\Foundation\ApplicationInterface;
-use Horizon\Contracts\Http\MiddlewareInterface;
+use Reno\Contracts\Foundation\ApplicationInterface;
+use Reno\Contracts\Http\MiddlewareInterface;
 
 class MiddlewareStack
 {
@@ -33,11 +33,11 @@ class MiddlewareStack
      * The middleware priority.
      */
     protected array $middlewarePriority = [
-        \Horizon\Http\Middleware\HandleCors::class,
-        \Horizon\Http\Middleware\TrimStrings::class,
-        \Horizon\Http\Middleware\ConvertEmptyStringsToNull::class,
-        \Horizon\Http\Middleware\ThrottleRequests::class,
-        \Horizon\Http\Middleware\VerifyCsrfToken::class,
+        \Reno\Http\Middleware\HandleCors::class,
+        \Reno\Http\Middleware\TrimStrings::class,
+        \Reno\Http\Middleware\ConvertEmptyStringsToNull::class,
+        \Reno\Http\Middleware\ThrottleRequests::class,
+        \Reno\Http\Middleware\VerifyCsrfToken::class,
     ];
 
     /**

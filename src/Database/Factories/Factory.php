@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Factories;
+namespace Reno\Database\Factories;
 
 use Closure;
 use Faker\Factory as FakerFactory;
 use Faker\Generator as Faker;
-use Horizon\Database\Eloquent\Model;
-use Horizon\Support\Collection;
+use Reno\Database\Eloquent\Model;
+use Reno\Support\Collection;
 use InvalidArgumentException;
 
 /**

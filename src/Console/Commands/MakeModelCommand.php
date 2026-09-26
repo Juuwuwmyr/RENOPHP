@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Console\Commands;
+namespace Reno\Console\Commands;
 
-use Horizon\Console\Command;
-use Horizon\Support\Str;
+use Reno\Console\Command;
+use Reno\Support\Str;
 use InvalidArgumentException;
 
 /**
@@ -136,7 +136,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Horizon\Database\Eloquent\Model;
+use Reno\Database\Eloquent\Model;
 
 /**
  * {{ class }} Model

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Contracts\Routing;
+namespace Reno\Contracts\Routing;
 
 interface UrlRoutableInterface
 {

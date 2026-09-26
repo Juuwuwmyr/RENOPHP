@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Routing;
+namespace Reno\Routing;
 
-use Horizon\Routing\Router;
-use Horizon\Routing\Route;
+use Reno\Routing\Router;
+use Reno\Routing\Route;
 use Closure;
 use InvalidArgumentException;
 

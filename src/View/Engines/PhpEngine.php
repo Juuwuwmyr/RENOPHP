@@ -1,10 +1,10 @@
 <?php
 
-namespace Horizon\View\Engines;
+namespace Reno\View\Engines;
 
-use Horizon\View\ViewException;
-use Horizon\View\Concerns\ManagesLayouts;
-use Horizon\View\Concerns\ManagesComponents;
+use Reno\View\ViewException;
+use Reno\View\Concerns\ManagesLayouts;
+use Reno\View\Concerns\ManagesComponents;
 
 /**
  * PhpEngine

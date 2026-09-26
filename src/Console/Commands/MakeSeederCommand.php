@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Console\Commands;
+namespace Reno\Console\Commands;
 
-use Horizon\Console\Command;
-use Horizon\Support\Str;
+use Reno\Console\Command;
+use Reno\Support\Str;
 
 /**
  * Make Seeder Command
@@ -133,7 +133,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use Horizon\Database\Seeder;
+use Reno\Database\Seeder;
 
 /**
  * {{ class }}

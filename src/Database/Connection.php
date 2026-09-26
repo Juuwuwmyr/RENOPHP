@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database;
+namespace Reno\Database;
 
 use PDO;
 use Closure;
@@ -10,13 +10,13 @@ use Exception;
 use Throwable;
 use RuntimeException;
 use DateTimeInterface;
-use Horizon\Contracts\Database\ConnectionInterface;
-use Horizon\Contracts\Database\QueryGrammarInterface;
-use Horizon\Contracts\Database\SchemaGrammarInterface;
-use Horizon\Contracts\Database\ProcessorInterface;
-use Horizon\Database\Query\QueryBuilder;
-use Horizon\Database\Query\Expression;
-use Horizon\Database\Schema\Builder as SchemaBuilder;
+use Reno\Contracts\Database\ConnectionInterface;
+use Reno\Contracts\Database\QueryGrammarInterface;
+use Reno\Contracts\Database\SchemaGrammarInterface;
+use Reno\Contracts\Database\ProcessorInterface;
+use Reno\Database\Query\QueryBuilder;
+use Reno\Database\Query\Expression;
+use Reno\Database\Schema\Builder as SchemaBuilder;
 
 /**
  * Database Connection

@@ -1,6 +1,6 @@
 <?php
 
-namespace Horizon\Auth\Access;
+namespace Reno\Auth\Access;
 
 use Exception;
 

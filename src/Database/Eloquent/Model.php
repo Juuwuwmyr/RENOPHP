@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Eloquent;
+namespace Reno\Database\Eloquent;
 
 use ArrayAccess;
 use JsonSerializable;
-use Horizon\Contracts\Database\ConnectionInterface;
-use Horizon\Database\Query\QueryBuilder;
-use Horizon\Database\Eloquent\Relations\BelongsTo;
-use Horizon\Database\Eloquent\Relations\BelongsToMany;
-use Horizon\Database\Eloquent\Relations\HasMany;
-use Horizon\Database\Eloquent\Relations\HasOne;
-use Horizon\Database\Eloquent\Relations\Relation;
-use Horizon\Database\Eloquent\Concerns\HasSecurity;
-use Horizon\Database\Eloquent\Concerns\HasPerformance;
-use Horizon\Database\Eloquent\SecurityAuditor;
-use Horizon\Support\Collection;
-use Horizon\Support\Str;
+use Reno\Contracts\Database\ConnectionInterface;
+use Reno\Database\Query\QueryBuilder;
+use Reno\Database\Eloquent\Relations\BelongsTo;
+use Reno\Database\Eloquent\Relations\BelongsToMany;
+use Reno\Database\Eloquent\Relations\HasMany;
+use Reno\Database\Eloquent\Relations\HasOne;
+use Reno\Database\Eloquent\Relations\Relation;
+use Reno\Database\Eloquent\Concerns\HasSecurity;
+use Reno\Database\Eloquent\Concerns\HasPerformance;
+use Reno\Database\Eloquent\SecurityAuditor;
+use Reno\Support\Collection;
+use Reno\Support\Str;
 use InvalidArgumentException;
 use LogicException;
 

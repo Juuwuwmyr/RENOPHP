@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Eloquent\Concerns;
+namespace Reno\Database\Eloquent\Concerns;
 
 use Closure;
-use Horizon\Database\Eloquent\PerformanceMonitor;
+use Reno\Database\Eloquent\PerformanceMonitor;
 
 /**
  * Model Performance Optimization

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Migrations;
+namespace Reno\Database\Migrations;
 
-use Horizon\Contracts\Database\ConnectionInterface;
-use Horizon\Database\Query\QueryBuilder;
+use Reno\Contracts\Database\ConnectionInterface;
+use Reno\Database\Query\QueryBuilder;
 
 /**
  * Migration Repository

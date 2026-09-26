@@ -1,11 +1,11 @@
 <?php
 
-namespace Horizon\Auth;
+namespace Reno\Auth;
 
-use Horizon\Auth\Contracts\Guard;
-use Horizon\Auth\Contracts\UserProvider;
-use Horizon\Auth\Guards\SessionGuard;
-use Horizon\Auth\Providers\EloquentUserProvider;
+use Reno\Auth\Contracts\Guard;
+use Reno\Auth\Contracts\UserProvider;
+use Reno\Auth\Guards\SessionGuard;
+use Reno\Auth\Providers\EloquentUserProvider;
 use InvalidArgumentException;
 
 /**

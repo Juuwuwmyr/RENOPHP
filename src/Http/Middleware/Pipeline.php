@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Http\Middleware;
+namespace Reno\Http\Middleware;
 
 use Closure;
-use Horizon\Contracts\Foundation\ApplicationInterface;
-use Horizon\Contracts\Http\RequestInterface;
-use Horizon\Contracts\Http\ResponseInterface;
+use Reno\Contracts\Foundation\ApplicationInterface;
+use Reno\Contracts\Http\RequestInterface;
+use Reno\Contracts\Http\ResponseInterface;
 use RuntimeException;
 
 class Pipeline

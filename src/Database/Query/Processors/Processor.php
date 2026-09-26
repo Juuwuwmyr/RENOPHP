@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Query\Processors;
+namespace Reno\Database\Query\Processors;
 
-use Horizon\Contracts\Database\ProcessorInterface;
-use Horizon\Contracts\Database\QueryBuilderInterface;
+use Reno\Contracts\Database\ProcessorInterface;
+use Reno\Contracts\Database\QueryBuilderInterface;
 
 /**
  * Processor

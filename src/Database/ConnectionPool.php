@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database;
+namespace Reno\Database;
 
-use Horizon\Contracts\Database\ConnectionInterface;
-use Horizon\Database\Connection;
+use Reno\Contracts\Database\ConnectionInterface;
+use Reno\Database\Connection;
 
 /**
  * Database Connection Pool

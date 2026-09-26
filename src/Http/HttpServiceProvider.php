@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Http;
+namespace Reno\Http;
 
-use Horizon\Contracts\Http\KernelInterface;
-use Horizon\Http\Middleware\MiddlewareStack;
-use Horizon\Support\ServiceProvider;
+use Reno\Contracts\Http\KernelInterface;
+use Reno\Http\Middleware\MiddlewareStack;
+use Reno\Support\ServiceProvider;
 
 class HttpServiceProvider extends ServiceProvider
 {

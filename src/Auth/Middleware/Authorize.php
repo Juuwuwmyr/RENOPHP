@@ -1,9 +1,9 @@
 <?php
 
-namespace Horizon\Auth\Middleware;
+namespace Reno\Auth\Middleware;
 
 use Closure;
-use Horizon\Auth\Access\AuthorizationException;
+use Reno\Auth\Access\AuthorizationException;
 
 /**
  * Authorize Middleware

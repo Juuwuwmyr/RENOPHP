@@ -1,6 +1,6 @@
 <?php
 
-namespace Horizon\Hashing;
+namespace Reno\Hashing;
 
 use RuntimeException;
 

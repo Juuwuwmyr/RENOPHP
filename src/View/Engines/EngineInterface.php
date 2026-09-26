@@ -1,6 +1,6 @@
 <?php
 
-namespace Horizon\View\Engines;
+namespace Reno\View\Engines;
 
 /**
  * EngineInterface

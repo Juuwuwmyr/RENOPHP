@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Container\Exceptions;
+namespace Reno\Container\Exceptions;
 
 use Exception;
 

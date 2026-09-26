@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Query;
+namespace Reno\Database\Query;
 
 use Closure;
 use InvalidArgumentException;
-use Horizon\Contracts\Database\ConnectionInterface;
-use Horizon\Contracts\Database\QueryBuilderInterface;
-use Horizon\Contracts\Database\QueryGrammarInterface;
-use Horizon\Contracts\Database\ProcessorInterface;
-use Horizon\Database\Query\JoinClause;
-use Horizon\Database\Query\Expression;
-use Horizon\Database\Concerns\PreventsSqlInjection;
+use Reno\Contracts\Database\ConnectionInterface;
+use Reno\Contracts\Database\QueryBuilderInterface;
+use Reno\Contracts\Database\QueryGrammarInterface;
+use Reno\Contracts\Database\ProcessorInterface;
+use Reno\Database\Query\JoinClause;
+use Reno\Database\Query\Expression;
+use Reno\Database\Concerns\PreventsSqlInjection;
 
 /**
  * Query Builder

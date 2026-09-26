@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Console\Commands;
+namespace Reno\Console\Commands;
 
-use Horizon\Console\Command;
-use Horizon\Support\Str;
+use Reno\Console\Command;
+use Reno\Support\Str;
 
 /**
  * Make Migration Command
@@ -163,9 +163,9 @@ class MakeMigrationCommand extends Command
 
 declare(strict_types=1);
 
-use Horizon\Database\Migrations\Migration;
-use Horizon\Database\Schema\Blueprint;
-use Horizon\Database\Schema\Builder;
+use Reno\Database\Migrations\Migration;
+use Reno\Database\Schema\Blueprint;
+use Reno\Database\Schema\Builder;
 
 return new class extends Migration
 {
@@ -206,9 +206,9 @@ return new class extends Migration
 
 declare(strict_types=1);
 
-use Horizon\Database\Migrations\Migration;
-use Horizon\Database\Schema\Blueprint;
-use Horizon\Database\Schema\Builder;
+use Reno\Database\Migrations\Migration;
+use Reno\Database\Schema\Blueprint;
+use Reno\Database\Schema\Builder;
 
 return new class extends Migration
 {
@@ -249,9 +249,9 @@ return new class extends Migration
 
 declare(strict_types=1);
 
-use Horizon\Database\Migrations\Migration;
-use Horizon\Database\Schema\Blueprint;
-use Horizon\Database\Schema\Builder;
+use Reno\Database\Migrations\Migration;
+use Reno\Database\Schema\Blueprint;
+use Reno\Database\Schema\Builder;
 
 return new class extends Migration
 {

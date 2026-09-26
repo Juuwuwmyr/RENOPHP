@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Migrations;
+namespace Reno\Database\Migrations;
 
-use Horizon\Database\Schema\Builder;
+use Reno\Database\Schema\Builder;
 
 /**
  * Migration

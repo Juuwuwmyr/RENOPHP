@@ -1,6 +1,6 @@
 <?php
 
-namespace Horizon\Validation;
+namespace Reno\Validation;
 
 /**
  * Validator
@@ -1415,7 +1415,7 @@ class Validator
     protected function validateFile(string $attribute, mixed $value, array $parameters): bool
     {
         // Check if it's an UploadedFile instance
-        if (!$value instanceof \Horizon\Http\UploadedFile) {
+        if (!$value instanceof \Reno\Http\UploadedFile) {
             return false;
         }
 

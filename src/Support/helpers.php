@@ -95,10 +95,10 @@ if (!function_exists('app')) {
     function app(?string $abstract = null, array $parameters = []): mixed
     {
         if (is_null($abstract)) {
-            return \Horizon\Foundation\Application::getInstance();
+            return \Reno\Foundation\Application::getInstance();
         }
 
-        return \Horizon\Foundation\Application::getInstance()->make($abstract, $parameters);
+        return \Reno\Foundation\Application::getInstance()->make($abstract, $parameters);
     }
 }
 
@@ -122,7 +122,7 @@ if (!function_exists('response')) {
      */
     function response(mixed $content = '', int $status = 200, array $headers = []): mixed
     {
-        $factory = app('Horizon\\Contracts\\Http\\ResponseFactoryInterface');
+        $factory = app('Reno\\Contracts\\Http\\ResponseFactoryInterface');
 
         if (func_num_args() === 0) {
             return $factory;
@@ -189,10 +189,10 @@ if (!function_exists('data_get')) {
                     $result[] = data_get($item, $key);
                 }
 
-                return in_array('*', $key) ? \Horizon\Support\Arr::collapse($result) : $result;
+                return in_array('*', $key) ? \Reno\Support\Arr::collapse($result) : $result;
             }
 
-            if (\Horizon\Support\Arr::accessible($target) && \Horizon\Support\Arr::exists($target, $segment)) {
+            if (\Reno\Support\Arr::accessible($target) && \Reno\Support\Arr::exists($target, $segment)) {
                 $target = $target[$segment];
             } elseif (is_object($target) && isset($target->{$segment})) {
                 $target = $target->{$segment};
@@ -208,9 +208,9 @@ if (!function_exists('collect')) {
     /**
      * Create a collection from the given value.
      */
-    function collect(mixed $value = []): \Horizon\Support\Collection
+    function collect(mixed $value = []): \Reno\Support\Collection
     {
-        return new \Horizon\Support\Collection($value);
+        return new \Reno\Support\Collection($value);
     }
 }
 
@@ -260,12 +260,34 @@ if (!function_exists('view')) {
      *
      * @param string|null $view
      * @param array $data
-     * @return \Horizon\View\ViewFactory|\Horizon\View\View
+     * @return \Reno\View\ViewFactory|\Reno\View\View
      */
     function view(?string $view = null, array $data = [])
     {
-        $factory = app('view');
-
+        static $factory = null;
+        
+        // Initialize view factory if not yet created
+        if ($factory === null) {
+            $viewPaths = [BASE_PATH . '/resources/views'];
+            $cachePath = BASE_PATH . '/storage/cache/views';
+            
+            // Create cache directory if it doesn't exist
+            if (!is_dir($cachePath)) {
+                @mkdir($cachePath, 0755, true);
+            }
+            
+            $finder = new \Reno\View\FileViewFinder($viewPaths);
+            
+            // Create Blade compiler
+            $bladeCompiler = new \Reno\View\Compilers\BladeCompiler($cachePath);
+            
+            // Create Blade engine
+            $bladeEngine = new \Reno\View\Engines\BladeEngine($bladeCompiler);
+            
+            // Create view factory with Blade engine
+            $factory = new \Reno\View\ViewFactory($finder, $bladeEngine);
+        }
+        
         if ($view === null) {
             return $factory;
         }
@@ -598,11 +620,11 @@ if (!function_exists('component')) {
     /**
      * Start a component
      *
-     * @param string|\Horizon\View\Component $component
+     * @param string|\Reno\View\Component $component
      * @param array $data
      * @return void
      */
-    function component(string|\Horizon\View\Component $component, array $data = []): void
+    function component(string|\Reno\View\Component $component, array $data = []): void
     {
         $engine = view()->getEngine();
         if (method_exists($engine, 'startComponent')) {
@@ -663,11 +685,11 @@ if (!function_exists('render_component')) {
     /**
      * Render a component inline
      *
-     * @param string|\Horizon\View\Component $component
+     * @param string|\Reno\View\Component $component
      * @param array $data
      * @return string
      */
-    function render_component(string|\Horizon\View\Component $component, array $data = []): string
+    function render_component(string|\Reno\View\Component $component, array $data = []): string
     {
         $engine = view()->getEngine();
         if (method_exists($engine, 'renderComponent')) {
@@ -695,7 +717,7 @@ if (!function_exists('view_cache_clear')) {
             return 0;
         }
 
-        $manager = new \Horizon\View\ViewCacheManager($cachePath);
+        $manager = new \Reno\View\ViewCacheManager($cachePath);
         return $manager->flush();
     }
 }
@@ -709,7 +731,7 @@ if (!function_exists('view_cache_stats')) {
     function view_cache_stats(): array
     {
         $cachePath = storage_path('framework/views');
-        $manager = new \Horizon\View\ViewCacheManager($cachePath);
+        $manager = new \Reno\View\ViewCacheManager($cachePath);
         return $manager->getStats();
     }
 }
@@ -723,7 +745,7 @@ if (!function_exists('auth')) {
      * Get the auth manager instance or a guard
      *
      * @param string|null $guard
-     * @return \Horizon\Auth\AuthManager|\Horizon\Auth\Contracts\Guard
+     * @return \Reno\Auth\AuthManager|\Reno\Auth\Contracts\Guard
      */
     function auth(?string $guard = null)
     {
@@ -742,7 +764,7 @@ if (!function_exists('user')) {
      * Get the currently authenticated user
      *
      * @param string|null $guard
-     * @return \Horizon\Auth\Contracts\Authenticatable|null
+     * @return \Reno\Auth\Contracts\Authenticatable|null
      */
     function user(?string $guard = null)
     {
@@ -786,7 +808,7 @@ if (!function_exists('session')) {
      *
      * @param string|array|null $key
      * @param mixed $default
-     * @return mixed|\Horizon\Session\SessionManager
+     * @return mixed|\Reno\Session\SessionManager
      */
     function session($key = null, $default = null)
     {
@@ -940,7 +962,7 @@ if (!function_exists('gate')) {
     /**
      * Get the gate instance
      *
-     * @return \Horizon\Auth\Access\Gate
+     * @return \Reno\Auth\Access\Gate
      */
     function gate()
     {
@@ -983,12 +1005,12 @@ if (!function_exists('authorize')) {
      * @param string $ability
      * @param mixed ...$arguments
      * @return void
-     * @throws \Horizon\Auth\Access\AuthorizationException
+     * @throws \Reno\Auth\Access\AuthorizationException
      */
     function authorize(string $ability, ...$arguments): void
     {
         if (cannot($ability, ...$arguments)) {
-            throw new \Horizon\Auth\Access\AuthorizationException(
+            throw new \Reno\Auth\Access\AuthorizationException(
                 "This action is unauthorized."
             );
         }

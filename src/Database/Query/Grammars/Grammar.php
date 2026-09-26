@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Query\Grammars;
+namespace Reno\Database\Query\Grammars;
 
-use Horizon\Contracts\Database\QueryGrammarInterface;
-use Horizon\Contracts\Database\QueryBuilderInterface;
-use Horizon\Database\Query\Expression;
-use Horizon\Database\Query\QueryBuilder;
+use Reno\Contracts\Database\QueryGrammarInterface;
+use Reno\Contracts\Database\QueryBuilderInterface;
+use Reno\Database\Query\Expression;
+use Reno\Database\Query\QueryBuilder;
 
 /**
  * Grammar

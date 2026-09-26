@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Routing;
+namespace Reno\Routing;
 
-use Horizon\Contracts\Routing\RouterInterface;
-use Horizon\Contracts\Routing\UrlGeneratorInterface;
-use Horizon\Support\ServiceProvider;
+use Reno\Contracts\Routing\RouterInterface;
+use Reno\Contracts\Routing\UrlGeneratorInterface;
+use Reno\Support\ServiceProvider;
 
 class RoutingServiceProvider extends ServiceProvider
 {

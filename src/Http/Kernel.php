@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Http;
+namespace Reno\Http;
 
-use Horizon\Http\Request;
-use Horizon\Http\Response;
-use Horizon\Routing\Router;
-use Horizon\Routing\Route;
-use Horizon\Routing\RouteParameterBinder;
-use Horizon\Routing\Exceptions\RouteNotFoundException;
-use Horizon\Routing\Exceptions\MethodNotAllowedException;
-use Horizon\Routing\Exceptions\ModelNotFoundException;
-use Horizon\Middleware\MiddlewareManager;
-use Horizon\Middleware\Pipeline;
+use Reno\Http\Request;
+use Reno\Http\Response;
+use Reno\Routing\Router;
+use Reno\Routing\Route;
+use Reno\Routing\RouteParameterBinder;
+use Reno\Routing\Exceptions\RouteNotFoundException;
+use Reno\Routing\Exceptions\MethodNotAllowedException;
+use Reno\Routing\Exceptions\ModelNotFoundException;
+use Reno\Middleware\MiddlewareManager;
+use Reno\Middleware\Pipeline;
 use Throwable;
 use Closure;
 
@@ -652,9 +652,9 @@ class Kernel
         // Default middleware aliases
         $this->middleware->aliases([
             'auth' => 'AuthMiddleware',
-            'cors' => \Horizon\Middleware\CorsMiddleware::class,
-            'security' => \Horizon\Middleware\SecurityMiddleware::class,
-            'throttle' => \Horizon\Middleware\ThrottleMiddleware::class,
+            'cors' => \Reno\Middleware\CorsMiddleware::class,
+            'security' => \Reno\Middleware\SecurityMiddleware::class,
+            'throttle' => \Reno\Middleware\ThrottleMiddleware::class,
         ]);
 
         // Default middleware groups

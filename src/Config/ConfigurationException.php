@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Config;
+namespace Reno\Config;
 
 use Exception;
 

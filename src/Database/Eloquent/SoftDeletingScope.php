@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Eloquent;
+namespace Reno\Database\Eloquent;
 
-use Horizon\Database\Eloquent\Builder;
-use Horizon\Database\Eloquent\Model;
+use Reno\Database\Eloquent\Builder;
+use Reno\Database\Eloquent\Model;
 
 /**
  * Soft Deleting Scope

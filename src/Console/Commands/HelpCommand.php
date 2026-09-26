@@ -1,10 +1,10 @@
 <?php
 
-namespace Horizon\Console\Commands;
+namespace Reno\Console\Commands;
 
-use Horizon\Console\Command;
-use Horizon\Console\Input;
-use Horizon\Console\Output;
+use Reno\Console\Command;
+use Reno\Console\Input;
+use Reno\Console\Output;
 
 /**
  * HelpCommand

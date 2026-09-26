@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database;
+namespace Reno\Database;
 
-use Horizon\Contracts\Database\ConnectionInterface;
-use Horizon\Database\Eloquent\Model;
-use Horizon\Support\Collection;
+use Reno\Contracts\Database\ConnectionInterface;
+use Reno\Database\Eloquent\Model;
+use Reno\Support\Collection;
 use InvalidArgumentException;
 
 /**

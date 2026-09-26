@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Http;
+namespace Reno\Http;
 
-use Horizon\Support\Collection;
-use Horizon\Http\UploadedFile;
+use Reno\Support\Collection;
+use Reno\Http\UploadedFile;
 use InvalidArgumentException;
 
 /**
@@ -51,7 +51,7 @@ class Request
     /**
      * The matched route for this request.
      */
-    protected ?\Horizon\Routing\Route $route = null;
+    protected ?\Reno\Routing\Route $route = null;
 
     /**
      * Route parameters.
@@ -84,19 +84,9 @@ class Request
     protected ?array $json = null;
 
     /**
-     * Route parameters.
-     */
-    protected array $routeParameters = [];
-
-    /**
      * Request attributes.
      */
     protected array $attributes = [];
-
-    /**
-     * The matched route for this request.
-     */
-    protected ?\Horizon\Routing\Route $route = null;
     public function __construct(
         array $query = [],
         array $request = [],
@@ -310,7 +300,16 @@ class Request
      */
     public function path(): string
     {
-        return ltrim($this->pathInfo, '/');
+        // Normalize to always start with / to match Router expectations
+        // Router::normalizeUri() ensures all routes start with /
+        $path = '/' . ltrim($this->pathInfo, '/');
+        
+        // Remove trailing slash unless it's root
+        if ($path !== '/' && str_ends_with($path, '/')) {
+            $path = rtrim($path, '/');
+        }
+        
+        return $path;
     }
 
     /**
@@ -689,7 +688,7 @@ class Request
     /**
      * Set the matched route.
      */
-    public function setRoute(\Horizon\Routing\Route $route): void
+    public function setRoute(\Reno\Routing\Route $route): void
     {
         $this->route = $route;
     }
@@ -697,7 +696,7 @@ class Request
     /**
      * Get the matched route.
      */
-    public function getMatchedRoute(): ?\Horizon\Routing\Route
+    public function getMatchedRoute(): ?\Reno\Routing\Route
     {
         return $this->route;
     }
@@ -1127,7 +1126,7 @@ class Request
      * @param array $messages
      * @param array $customAttributes
      * @return array Validated data
-     * @throws \Horizon\Validation\ValidationException
+     * @throws \Reno\Validation\ValidationException
      */
     public function validate(array $rules, array $messages = [], array $customAttributes = []): array
     {
@@ -1142,9 +1141,9 @@ class Request
      * @param array $rules
      * @param array $messages
      * @param array $customAttributes
-     * @return \Horizon\Validation\Validator
+     * @return \Reno\Validation\Validator
      */
-    public function getValidator(array $rules, array $messages = [], array $customAttributes = []): \Horizon\Validation\Validator
+    public function getValidator(array $rules, array $messages = [], array $customAttributes = []): \Reno\Validation\Validator
     {
         return $this->getValidatorInstance($rules, $messages, $customAttributes);
     }
@@ -1155,9 +1154,9 @@ class Request
      * @param array $rules
      * @param array $messages
      * @param array $customAttributes
-     * @return \Horizon\Validation\Validator
+     * @return \Reno\Validation\Validator
      */
-    public function validator(array $rules, array $messages = [], array $customAttributes = []): \Horizon\Validation\Validator
+    public function validator(array $rules, array $messages = [], array $customAttributes = []): \Reno\Validation\Validator
     {
         return $this->getValidatorInstance($rules, $messages, $customAttributes);
     }
@@ -1217,9 +1216,9 @@ class Request
      * @param array $rules
      * @param array $messages
      * @param array $customAttributes
-     * @return \Horizon\Validation\MessageBag
+     * @return \Reno\Validation\MessageBag
      */
-    public function getValidationErrors(array $rules, array $messages = [], array $customAttributes = []): \Horizon\Validation\MessageBag
+    public function getValidationErrors(array $rules, array $messages = [], array $customAttributes = []): \Reno\Validation\MessageBag
     {
         $validator = $this->getValidatorInstance($rules, $messages, $customAttributes);
         $validator->validate();
@@ -1233,14 +1232,14 @@ class Request
      * @param array $rules
      * @param array $messages
      * @param array $customAttributes
-     * @return \Horizon\Validation\Validator
+     * @return \Reno\Validation\Validator
      */
-    protected function getValidatorInstance(array $rules, array $messages = [], array $customAttributes = []): \Horizon\Validation\Validator
+    protected function getValidatorInstance(array $rules, array $messages = [], array $customAttributes = []): \Reno\Validation\Validator
     {
         // Get all input data (form data + files)
         $data = array_merge($this->all(), $this->allFiles());
 
-        $validator = new \Horizon\Validation\Validator($data, $rules, $messages, $customAttributes);
+        $validator = new \Reno\Validation\Validator($data, $rules, $messages, $customAttributes);
 
         // If database connection is available in attributes, set it
         if ($this->hasAttribute('db')) {

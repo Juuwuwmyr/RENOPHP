@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Middleware;
+namespace Reno\Middleware;
 
-use Horizon\Http\Request;
-use Horizon\Http\Response;
-use Horizon\Middleware\Pipeline;
-use Horizon\Middleware\MiddlewareInterface;
+use Reno\Http\Request;
+use Reno\Http\Response;
+use Reno\Middleware\Pipeline;
+use Reno\Middleware\MiddlewareInterface;
 use Closure;
 use InvalidArgumentException;
 

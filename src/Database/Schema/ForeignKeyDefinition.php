@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Schema;
+namespace Reno\Database\Schema;
 
-use Horizon\Contracts\Database\ForeignKeyDefinitionInterface;
-use Horizon\Contracts\Database\CommandInterface;
+use Reno\Contracts\Database\ForeignKeyDefinitionInterface;
+use Reno\Contracts\Database\CommandInterface;
 
 /**
  * Foreign Key Definition

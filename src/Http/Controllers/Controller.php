@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Http\Controllers;
+namespace Reno\Http\Controllers;
 
-use Horizon\Contracts\Foundation\ApplicationInterface;
-use Horizon\Contracts\Http\ResponseInterface;
-use Horizon\Http\Response;
+use Reno\Contracts\Foundation\ApplicationInterface;
+use Reno\Contracts\Http\ResponseInterface;
+use Reno\Http\Response;
 
 abstract class Controller
 {
@@ -51,7 +51,7 @@ abstract class Controller
         $validator = app('validator')->make($data, $rules, $messages, $attributes);
 
         if ($validator->fails()) {
-            throw new \Horizon\Validation\ValidationException($validator);
+            throw new \Reno\Validation\ValidationException($validator);
         }
 
         return $validator->validated();
@@ -173,6 +173,6 @@ abstract class Controller
      */
     protected function deny(string $message = 'This action is unauthorized.'): never
     {
-        throw new \Horizon\Http\Exceptions\HttpException(403, $message);
+        throw new \Reno\Http\Exceptions\HttpException(403, $message);
     }
 }

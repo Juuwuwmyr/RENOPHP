@@ -1,9 +1,9 @@
 <?php
 
-namespace Horizon\Auth\Access;
+namespace Reno\Auth\Access;
 
 use Closure;
-use Horizon\Auth\Contracts\Authenticatable;
+use Reno\Auth\Contracts\Authenticatable;
 use InvalidArgumentException;
 
 /**

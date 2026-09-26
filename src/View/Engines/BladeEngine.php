@@ -1,11 +1,11 @@
 <?php
 
-namespace Horizon\View\Engines;
+namespace Reno\View\Engines;
 
-use Horizon\View\ViewException;
-use Horizon\View\Compilers\BladeCompiler;
-use Horizon\View\Concerns\ManagesLayouts;
-use Horizon\View\Concerns\ManagesComponents;
+use Reno\View\ViewException;
+use Reno\View\Compilers\BladeCompiler;
+use Reno\View\Concerns\ManagesLayouts;
+use Reno\View\Concerns\ManagesComponents;
 
 /**
  * BladeEngine

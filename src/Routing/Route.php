@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Routing;
+namespace Reno\Routing;
 
-use Horizon\Http\Request;
-use Horizon\Http\Response;
+use Reno\Http\Request;
+use Reno\Http\Response;
 use Closure;
 use InvalidArgumentException;
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace Horizon\Auth\Concerns;
+namespace Reno\Auth\Concerns;
 
-use Horizon\Auth\Passwords\PasswordBroker;
+use Reno\Auth\Passwords\PasswordBroker;
 
 /**
  * ResetsPasswords
@@ -89,7 +89,7 @@ trait ResetsPasswords
     /**
      * Reset the given user's password
      *
-     * @param \Horizon\Auth\Contracts\Authenticatable $user
+     * @param \Reno\Auth\Contracts\Authenticatable $user
      * @param string $password
      * @return void
      */
@@ -142,7 +142,7 @@ trait ResetsPasswords
     /**
      * Get the guard to be used during password reset
      *
-     * @return \Horizon\Auth\Contracts\StatefulGuard
+     * @return \Reno\Auth\Contracts\StatefulGuard
      */
     protected function guard()
     {

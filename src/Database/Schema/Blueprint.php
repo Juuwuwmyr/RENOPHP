@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Schema;
+namespace Reno\Database\Schema;
 
 use Closure;
 use BadMethodCallException;
-use Horizon\Contracts\Database\ConnectionInterface;
-use Horizon\Contracts\Database\SchemaGrammarInterface;
-use Horizon\Contracts\Database\BlueprintInterface;
-use Horizon\Contracts\Database\CommandInterface;
-use Horizon\Contracts\Database\ColumnDefinitionInterface;
-use Horizon\Contracts\Database\ForeignKeyDefinitionInterface;
-use Horizon\Database\Schema\ColumnDefinition;
-use Horizon\Database\Schema\ForeignKeyDefinition;
+use Reno\Contracts\Database\ConnectionInterface;
+use Reno\Contracts\Database\SchemaGrammarInterface;
+use Reno\Contracts\Database\BlueprintInterface;
+use Reno\Contracts\Database\CommandInterface;
+use Reno\Contracts\Database\ColumnDefinitionInterface;
+use Reno\Contracts\Database\ForeignKeyDefinitionInterface;
+use Reno\Database\Schema\ColumnDefinition;
+use Reno\Database\Schema\ForeignKeyDefinition;
 
 /**
  * Blueprint

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Console\Commands;
+namespace Reno\Console\Commands;
 
-use Horizon\Console\Command;
+use Reno\Console\Command;
 
 class RouteListCommand extends Command
 {

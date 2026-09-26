@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Eloquent;
+namespace Reno\Database\Eloquent;
 
 use BadMethodCallException;
 use Closure;
-use Horizon\Database\Query\QueryBuilder;
-use Horizon\Support\Collection;
-use Horizon\Support\Str;
+use Reno\Database\Query\QueryBuilder;
+use Reno\Support\Collection;
+use Reno\Support\Str;
 use InvalidArgumentException;
 
 /**

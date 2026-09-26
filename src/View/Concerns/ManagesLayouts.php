@@ -1,6 +1,6 @@
 <?php
 
-namespace Horizon\View\Concerns;
+namespace Reno\View\Concerns;
 
 /**
  * ManagesLayouts

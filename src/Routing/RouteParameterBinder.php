@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Routing;
+namespace Reno\Routing;
 
-use Horizon\Http\Request;
-use Horizon\Routing\Route;
-use Horizon\Routing\Exceptions\ModelNotFoundException;
+use Reno\Http\Request;
+use Reno\Routing\Route;
+use Reno\Routing\Exceptions\ModelNotFoundException;
 use Closure;
 use ReflectionClass;
 use ReflectionMethod;

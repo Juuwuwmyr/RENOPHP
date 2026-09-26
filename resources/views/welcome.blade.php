@@ -151,7 +151,7 @@
         <div class="links">
             <a href="/docs">Documentation</a>
             <a href="/api/hello">API Test</a>
-            <a href="https://github.com/yourusername/renophp" target="_blank">GitHub</a>
+            <a href="https://github.com/Juuwuwmyr/renophp" target="_blank">GitHub</a>
         </div>
         
         <div class="version">

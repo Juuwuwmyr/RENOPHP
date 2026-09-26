@@ -1,6 +1,6 @@
 <?php
 
-namespace Horizon\Auth\Contracts;
+namespace Reno\Auth\Contracts;
 
 /**
  * UserProvider

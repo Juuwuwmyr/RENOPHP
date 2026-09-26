@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Http\Middleware;
+namespace Reno\Http\Middleware;
 
-use Horizon\Contracts\Http\MiddlewareInterface;
-use Horizon\Contracts\Http\RequestInterface;
-use Horizon\Contracts\Http\ResponseInterface;
-use Horizon\Http\Exceptions\HttpException;
-use Horizon\Support\Str;
+use Reno\Contracts\Http\MiddlewareInterface;
+use Reno\Contracts\Http\RequestInterface;
+use Reno\Contracts\Http\ResponseInterface;
+use Reno\Http\Exceptions\HttpException;
+use Reno\Support\Str;
 
 class VerifyCsrfToken implements MiddlewareInterface
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Horizon\Auth\Concerns;
+namespace Reno\Auth\Concerns;
 
-use Horizon\Auth\Passwords\PasswordBroker;
+use Reno\Auth\Passwords\PasswordBroker;
 
 /**
  * SendsPasswordResetEmails

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Http;
+namespace Reno\Http;
 
-use Horizon\Http\ResponseHeaders;
-use Horizon\Http\Cookie;
+use Reno\Http\ResponseHeaders;
+use Reno\Http\Cookie;
 use JsonSerializable;
 
 /**

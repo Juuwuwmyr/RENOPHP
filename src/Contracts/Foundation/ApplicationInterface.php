@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Contracts\Foundation;
+namespace Reno\Contracts\Foundation;
 
-use Horizon\Contracts\Container\ContainerInterface;
+use Reno\Contracts\Container\ContainerInterface;
 
 interface ApplicationInterface extends ContainerInterface
 {

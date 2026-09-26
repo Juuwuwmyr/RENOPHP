@@ -1,6 +1,6 @@
 <?php
 
-namespace Horizon\Validation;
+namespace Reno\Validation;
 
 /**
  * Validation Factory

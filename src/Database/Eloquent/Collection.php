@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Eloquent;
+namespace Reno\Database\Eloquent;
 
-use Horizon\Support\Collection as BaseCollection;
+use Reno\Support\Collection as BaseCollection;
 
 /**
  * Eloquent Model Collection

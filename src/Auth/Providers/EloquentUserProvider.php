@@ -1,9 +1,9 @@
 <?php
 
-namespace Horizon\Auth\Providers;
+namespace Reno\Auth\Providers;
 
-use Horizon\Auth\Contracts\Authenticatable;
-use Horizon\Auth\Contracts\UserProvider;
+use Reno\Auth\Contracts\Authenticatable;
+use Reno\Auth\Contracts\UserProvider;
 
 /**
  * EloquentUserProvider

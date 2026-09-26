@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Eloquent\Relations;
+namespace Reno\Database\Eloquent\Relations;
 
-use Horizon\Database\Eloquent\Builder;
-use Horizon\Database\Eloquent\Collection;
-use Horizon\Database\Eloquent\Model;
+use Reno\Database\Eloquent\Builder;
+use Reno\Database\Eloquent\Collection;
+use Reno\Database\Eloquent\Model;
 
 /**
  * Belongs To Relationship

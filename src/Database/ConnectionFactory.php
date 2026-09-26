@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database;
+namespace Reno\Database;
 
 use PDO;
 use Closure;
 use InvalidArgumentException;
-use Horizon\Foundation\Application;
-use Horizon\Contracts\Database\ConnectionInterface;
-use Horizon\Database\Connectors\ConnectorInterface;
-use Horizon\Database\Connectors\MySqlConnector;
-use Horizon\Database\Connectors\PostgresConnector;
-use Horizon\Database\Connectors\SQLiteConnector;
-use Horizon\Database\Connectors\SqlServerConnector;
+use Reno\Foundation\Application;
+use Reno\Contracts\Database\ConnectionInterface;
+use Reno\Database\Connectors\ConnectorInterface;
+use Reno\Database\Connectors\MySqlConnector;
+use Reno\Database\Connectors\PostgresConnector;
+use Reno\Database\Connectors\SQLiteConnector;
+use Reno\Database\Connectors\SqlServerConnector;
 
 /**
  * Connection Factory

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Concerns;
+namespace Reno\Database\Concerns;
 
-use Horizon\Database\Eloquent\SecurityException;
+use Reno\Database\Eloquent\SecurityException;
 
 /**
  * SQL Injection Prevention

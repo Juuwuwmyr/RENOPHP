@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Contracts\Routing;
+namespace Reno\Contracts\Routing;
 
-use Horizon\Contracts\Http\RequestInterface;
-use Horizon\Contracts\Http\ResponseInterface;
+use Reno\Contracts\Http\RequestInterface;
+use Reno\Contracts\Http\ResponseInterface;
 
 interface RouterInterface
 {

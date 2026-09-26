@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Routing;
+namespace Reno\Routing;
 
-use Horizon\Contracts\Routing\RouteInterface;
+use Reno\Contracts\Routing\RouteInterface;
 
 class CompiledRoute
 {

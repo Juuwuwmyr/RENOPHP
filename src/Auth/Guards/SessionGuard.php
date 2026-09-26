@@ -1,10 +1,10 @@
 <?php
 
-namespace Horizon\Auth\Guards;
+namespace Reno\Auth\Guards;
 
-use Horizon\Auth\Contracts\Authenticatable;
-use Horizon\Auth\Contracts\StatefulGuard;
-use Horizon\Auth\Contracts\UserProvider;
+use Reno\Auth\Contracts\Authenticatable;
+use Reno\Auth\Contracts\StatefulGuard;
+use Reno\Auth\Contracts\UserProvider;
 
 /**
  * SessionGuard

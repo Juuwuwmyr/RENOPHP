@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Support;
+namespace Reno\Support;
 
-use Horizon\Contracts\Foundation\ApplicationInterface;
+use Reno\Contracts\Foundation\ApplicationInterface;
 
 abstract class ServiceProvider
 {

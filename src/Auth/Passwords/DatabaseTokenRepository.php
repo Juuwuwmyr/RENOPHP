@@ -1,9 +1,9 @@
 <?php
 
-namespace Horizon\Auth\Passwords;
+namespace Reno\Auth\Passwords;
 
-use Horizon\Auth\Contracts\Authenticatable;
-use Horizon\Database\Connection;
+use Reno\Auth\Contracts\Authenticatable;
+use Reno\Database\Connection;
 
 /**
  * DatabaseTokenRepository
@@ -189,7 +189,7 @@ class DatabaseTokenRepository implements TokenRepositoryInterface
     /**
      * Get the database query builder for the table
      *
-     * @return \Horizon\Database\Query\QueryBuilder
+     * @return \Reno\Database\Query\QueryBuilder
      */
     protected function getTable()
     {

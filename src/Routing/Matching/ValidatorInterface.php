@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Routing\Matching;
+namespace Reno\Routing\Matching;
 
-use Horizon\Contracts\Http\RequestInterface;
-use Horizon\Contracts\Routing\RouteInterface;
+use Reno\Contracts\Http\RequestInterface;
+use Reno\Contracts\Routing\RouteInterface;
 
 interface ValidatorInterface
 {

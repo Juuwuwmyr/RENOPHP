@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Contracts\Database;
+namespace Reno\Contracts\Database;
 
 use PDO;
 use Closure;

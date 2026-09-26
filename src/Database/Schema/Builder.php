@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Schema;
+namespace Reno\Database\Schema;
 
 use Closure;
-use Horizon\Contracts\Database\ConnectionInterface;
-use Horizon\Contracts\Database\SchemaGrammarInterface;
-use Horizon\Database\Schema\Blueprint;
+use Reno\Contracts\Database\ConnectionInterface;
+use Reno\Contracts\Database\SchemaGrammarInterface;
+use Reno\Database\Schema\Blueprint;
 
 /**
  * Schema Builder

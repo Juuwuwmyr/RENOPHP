@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Routing;
+namespace Reno\Routing;
 
-use Horizon\Contracts\Http\RequestInterface;
-use Horizon\Contracts\Routing\RouteCollectionInterface;
-use Horizon\Contracts\Routing\RouteInterface;
-use Horizon\Contracts\Routing\UrlGeneratorInterface;
-use Horizon\Routing\Exceptions\RouteNotFoundException;
-use Horizon\Support\Arr;
+use Reno\Contracts\Http\RequestInterface;
+use Reno\Contracts\Routing\RouteCollectionInterface;
+use Reno\Contracts\Routing\RouteInterface;
+use Reno\Contracts\Routing\UrlGeneratorInterface;
+use Reno\Routing\Exceptions\RouteNotFoundException;
+use Reno\Support\Arr;
 use InvalidArgumentException;
 
 class UrlGenerator implements UrlGeneratorInterface

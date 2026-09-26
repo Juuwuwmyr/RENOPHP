@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Eloquent\Relations;
+namespace Reno\Database\Eloquent\Relations;
 
 use Closure;
-use Horizon\Database\Eloquent\Builder;
-use Horizon\Database\Eloquent\Model;
-use Horizon\Database\Query\QueryBuilder;
-use Horizon\Support\Collection;
+use Reno\Database\Eloquent\Builder;
+use Reno\Database\Eloquent\Model;
+use Reno\Database\Query\QueryBuilder;
+use Reno\Support\Collection;
 
 /**
  * Base Relation Class

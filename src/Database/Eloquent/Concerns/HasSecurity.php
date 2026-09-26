@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Eloquent\Concerns;
+namespace Reno\Database\Eloquent\Concerns;
 
-use Horizon\Database\Eloquent\MassAssignmentException;
-use Horizon\Database\Eloquent\SecurityException;
+use Reno\Database\Eloquent\MassAssignmentException;
+use Reno\Database\Eloquent\SecurityException;
 
 /**
  * Model Security Concerns

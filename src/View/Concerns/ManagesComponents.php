@@ -1,8 +1,8 @@
 <?php
 
-namespace Horizon\View\Concerns;
+namespace Reno\View\Concerns;
 
-use Horizon\View\Component;
+use Reno\View\Component;
 
 /**
  * ManagesComponents

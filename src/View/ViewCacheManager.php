@@ -1,6 +1,6 @@
 <?php
 
-namespace Horizon\View;
+namespace Reno\View;
 
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;

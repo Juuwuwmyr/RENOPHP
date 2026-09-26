@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Seeders;
+namespace Reno\Database\Seeders;
 
-use Horizon\Database\Seeder;
+use Reno\Database\Seeder;
 
 /**
  * Database Seeder

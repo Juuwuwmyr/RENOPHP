@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Eloquent;
+namespace Reno\Database\Eloquent;
 
 use Closure;
 

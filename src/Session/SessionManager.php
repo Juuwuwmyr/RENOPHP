@@ -1,6 +1,6 @@
 <?php
 
-namespace Horizon\Session;
+namespace Reno\Session;
 
 use SessionHandlerInterface;
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace Horizon\Auth\Concerns;
+namespace Reno\Auth\Concerns;
 
-use Horizon\Auth\AuthenticationException;
+use Reno\Auth\AuthenticationException;
 
 /**
  * AuthenticatesUsers
@@ -162,7 +162,7 @@ trait AuthenticatesUsers
     /**
      * Get the guard to be used during authentication
      *
-     * @return \Horizon\Auth\Contracts\StatefulGuard
+     * @return \Reno\Auth\Contracts\StatefulGuard
      */
     protected function guard()
     {

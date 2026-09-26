@@ -1,6 +1,6 @@
 <?php
 
-namespace Horizon\View\Compilers;
+namespace Reno\View\Compilers;
 
 /**
  * Compiler

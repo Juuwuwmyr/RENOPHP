@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Routing;
+namespace Reno\Routing;
 
-use Horizon\Routing\Route;
+use Reno\Routing\Route;
 use Countable;
 use IteratorAggregate;
 use ArrayIterator;

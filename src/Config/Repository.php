@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Config;
+namespace Reno\Config;
 
 use ArrayAccess;
-use Horizon\Contracts\Config\ConfigInterface;
-use Horizon\Support\Arr;
+use Reno\Contracts\Config\ConfigInterface;
+use Reno\Support\Arr;
 
 class Repository implements ConfigInterface, ArrayAccess
 {

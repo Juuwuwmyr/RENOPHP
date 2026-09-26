@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Contracts\Http;
+namespace Reno\Contracts\Http;
 
 interface MiddlewareInterface
 {

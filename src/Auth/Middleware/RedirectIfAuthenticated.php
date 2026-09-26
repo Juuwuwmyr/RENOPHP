@@ -1,6 +1,6 @@
 <?php
 
-namespace Horizon\Auth\Middleware;
+namespace Reno\Auth\Middleware;
 
 use Closure;
 

@@ -1,9 +1,9 @@
 <?php
 
-namespace Horizon\Validation\Rules;
+namespace Reno\Validation\Rules;
 
-use Horizon\Validation\ValidationRule;
-use Horizon\Validation\Validator;
+use Reno\Validation\ValidationRule;
+use Reno\Validation\Validator;
 
 /**
  * CustomRule

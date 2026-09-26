@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Container;
+namespace Reno\Container;
 
 use Closure;
 use Exception;
-use Horizon\Contracts\Container\ContainerInterface;
-use Horizon\Contracts\Container\ContextualBindingBuilder;
-use Horizon\Container\Exceptions\BindingResolutionException;
-use Horizon\Container\Exceptions\CircularDependencyException;
+use Reno\Contracts\Container\ContainerInterface;
+use Reno\Contracts\Container\ContextualBindingBuilder;
+use Reno\Container\Exceptions\BindingResolutionException;
+use Reno\Container\Exceptions\CircularDependencyException;
 use LogicException;
 use ReflectionClass;
 use ReflectionException;

@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Routing;
+namespace Reno\Routing;
 
-use Horizon\Http\Request;
-use Horizon\Routing\Route;
-use Horizon\Routing\RouteCollection;
-use Horizon\Routing\RouteCache;
-use Horizon\Routing\RouteCompiler;
-use Horizon\Routing\Exceptions\RouteNotFoundException;
-use Horizon\Routing\Exceptions\MethodNotAllowedException;
+use Reno\Http\Request;
+use Reno\Routing\Route;
+use Reno\Routing\RouteCollection;
+use Reno\Routing\RouteCache;
+use Reno\Routing\RouteCompiler;
+use Reno\Routing\Exceptions\RouteNotFoundException;
+use Reno\Routing\Exceptions\MethodNotAllowedException;
 
 /**
  * FastRouter

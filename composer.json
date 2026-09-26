@@ -1,19 +1,20 @@
 {
-    "name": "horizon/framework",
-    "description": "The Horizon PHP Framework - A modern, secure, and developer-friendly web framework",
-    "type": "library",
+    "name": "renophp/framework",
+    "description": "RENOPHP - A modern, secure, and developer-friendly PHP web framework. Less Magic. More Understanding.",
+    "type": "project",
     "license": "MIT",
     "authors": [
         {
-            "name": "Horizon Framework Team",
-            "email": "team@horizonframework.dev"
+            "name": "Moreno Jumyr",
+            "email": "contact@renophp.dev"
         }
     ],
     "require": {
-        "php": "^8.1",
+        "php": "^8.0",
         "ext-json": "*",
         "ext-mbstring": "*",
         "ext-openssl": "*",
+        "ext-pdo": "*",
         "vlucas/phpdotenv": "^5.4",
         "psr/container": "^2.0"
     },
@@ -23,7 +24,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Horizon\\": "src/"
+            "Reno\\": "src/",
+            "App\\": "app/"
         },
         "files": [
             "src/Support/helpers.php"
@@ -31,13 +33,19 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Horizon\\Tests\\": "tests/"
+            "Tests\\": "tests/"
         }
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
     "config": {
         "sort-packages": true,
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "preferred-install": "dist"
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ]
     }
 }

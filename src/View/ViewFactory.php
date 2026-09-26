@@ -1,9 +1,9 @@
 <?php
 
-namespace Horizon\View;
+namespace Reno\View;
 
-use Horizon\View\Engines\EngineInterface;
-use Horizon\View\Engines\PhpEngine;
+use Reno\View\Engines\EngineInterface;
+use Reno\View\Engines\PhpEngine;
 
 /**
  * ViewFactory

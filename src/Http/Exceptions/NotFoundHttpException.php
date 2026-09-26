@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Http\Exceptions;
+namespace Reno\Http\Exceptions;
 
 class NotFoundHttpException extends HttpException
 {

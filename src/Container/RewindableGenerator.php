@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Container;
+namespace Reno\Container;
 
 use Countable;
 use Generator;

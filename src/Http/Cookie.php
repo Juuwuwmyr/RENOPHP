@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Http;
+namespace Reno\Http;
 
 use InvalidArgumentException;
 

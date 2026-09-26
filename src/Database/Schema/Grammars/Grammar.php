@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Schema\Grammars;
+namespace Reno\Database\Schema\Grammars;
 
-use Horizon\Contracts\Database\SchemaGrammarInterface;
-use Horizon\Contracts\Database\BlueprintInterface;
-use Horizon\Contracts\Database\CommandInterface;
-use Horizon\Contracts\Database\ColumnDefinitionInterface;
-use Horizon\Database\Query\Expression;
+use Reno\Contracts\Database\SchemaGrammarInterface;
+use Reno\Contracts\Database\BlueprintInterface;
+use Reno\Contracts\Database\CommandInterface;
+use Reno\Contracts\Database\ColumnDefinitionInterface;
+use Reno\Database\Query\Expression;
 
 /**
  * Schema Grammar

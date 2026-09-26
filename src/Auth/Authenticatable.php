@@ -1,6 +1,6 @@
 <?php
 
-namespace Horizon\Auth;
+namespace Reno\Auth;
 
 /**
  * Authenticatable Trait

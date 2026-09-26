@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Horizon\Database\Migrations;
+namespace Reno\Database\Migrations;
 
 use Closure;
 use Throwable;
 use RuntimeException;
-use Horizon\Foundation\Application;
-use Horizon\Contracts\Database\ConnectionInterface;
-use Horizon\Database\Migrations\Migration;
-use Horizon\Database\Migrations\MigrationRepository;
-use Horizon\Support\Collection;
-use Horizon\Support\Str;
+use Reno\Foundation\Application;
+use Reno\Contracts\Database\ConnectionInterface;
+use Reno\Database\Migrations\Migration;
+use Reno\Database\Migrations\MigrationRepository;
+use Reno\Support\Collection;
+use Reno\Support\Str;
 
 /**
  * Migrator

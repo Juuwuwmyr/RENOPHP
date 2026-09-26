@@ -13,7 +13,7 @@ use Reno\Routing\Router;
 
 $router = new Router();
 
-// Home page
+// Home page - single route handles root
 $router->get('/', function() {
     return view('welcome', [
         'title' => 'Welcome to RENOPHP',
@@ -21,12 +21,22 @@ $router->get('/', function() {
     ]);
 });
 
-// Example API route
+// Documentation page
+$router->get('/docs', function() {
+    return view('docs', [
+        'title' => 'RENOPHP Documentation',
+        'framework' => 'RENOPHP',
+        'version' => '1.0.0'
+    ]);
+});
+
+// Example API routes
 $router->get('/api/hello', function() {
     return Response::json([
         'message' => 'Hello from RENOPHP!',
         'version' => '1.0.0',
-        'timestamp' => date('Y-m-d H:i:s')
+        'timestamp' => date('Y-m-d H:i:s'),
+        'status' => 'success'
     ]);
 });
 
