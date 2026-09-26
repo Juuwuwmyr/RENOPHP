@@ -13,6 +13,9 @@ use Horizon\Database\Eloquent\Relations\BelongsToMany;
 use Horizon\Database\Eloquent\Relations\HasMany;
 use Horizon\Database\Eloquent\Relations\HasOne;
 use Horizon\Database\Eloquent\Relations\Relation;
+use Horizon\Database\Eloquent\Concerns\HasSecurity;
+use Horizon\Database\Eloquent\Concerns\HasPerformance;
+use Horizon\Database\Eloquent\SecurityAuditor;
 use Horizon\Support\Collection;
 use Horizon\Support\Str;
 use InvalidArgumentException;
@@ -26,6 +29,7 @@ use LogicException;
  */
 abstract class Model implements ArrayAccess, JsonSerializable
 {
+    use HasSecurity, HasPerformance;
     /**
      * The connection name for the model.
      */

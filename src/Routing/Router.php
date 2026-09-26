@@ -4,560 +4,568 @@ declare(strict_types=1);
 
 namespace Horizon\Routing;
 
-use Horizon\Contracts\Foundation\ApplicationInterface;
-use Horizon\Contracts\Http\RequestInterface;
-use Horizon\Contracts\Http\ResponseInterface;
-use Horizon\Contracts\Routing\RouteCollectionInterface;
-use Horizon\Contracts\Routing\RouteInterface;
-use Horizon\Contracts\Routing\RouterInterface;
-use Horizon\Http\Exceptions\HttpException;
-use Horizon\Http\Exceptions\MethodNotAllowedException;
-use Horizon\Http\Exceptions\NotFoundHttpException;
+use Horizon\Http\Request;
 use Horizon\Http\Response;
+use Horizon\Routing\Route;
+use Horizon\Routing\RouteCollection;
+use Horizon\Routing\RouteCompiler;
+use Horizon\Routing\Exceptions\RouteNotFoundException;
+use Horizon\Routing\Exceptions\MethodNotAllowedException;
+use Closure;
+use InvalidArgumentException;
 
-class Router implements RouterInterface
+/**
+ * Router
+ * 
+ * Fast, flexible HTTP router with pattern matching, parameter extraction,
+ * and comprehensive routing features.
+ * 
+ * Philosophy: "Fast by default, flexible when needed"
+ */
+class Router
 {
     /**
-     * The application instance.
+     * Route collection.
      */
-    protected ApplicationInterface $container;
+    protected RouteCollection $routes;
 
     /**
-     * The route collection instance.
+     * Route compiler for pattern matching.
      */
-    protected RouteCollectionInterface $routes;
+    protected RouteCompiler $compiler;
 
     /**
-     * The currently dispatched route instance.
-     */
-    protected ?RouteInterface $current = null;
-
-    /**
-     * The request currently being dispatched.
-     */
-    protected ?RequestInterface $currentRequest = null;
-
-    /**
-     * All of the short-hand keys for middlewares.
-     */
-    protected array $middleware = [];
-
-    /**
-     * All of the middleware groups.
-     */
-    protected array $middlewareGroups = [];
-
-    /**
-     * The priority-sorted list of middleware.
-     */
-    protected array $middlewarePriority = [];
-
-    /**
-     * The registered route value binders.
-     */
-    protected array $binders = [];
-
-    /**
-     * The globally available parameter patterns.
-     */
-    protected array $patterns = [];
-
-    /**
-     * The route group attribute stack.
+     * Current route group attributes.
      */
     protected array $groupStack = [];
 
     /**
-     * The registered string macros.
+     * Route model bindings.
      */
-    protected array $macros = [];
+    protected array $bindings = [];
+
+    /**
+     * Route parameter patterns.
+     */
+    protected array $patterns = [];
+
+    /**
+     * Named routes cache.
+     */
+    protected array $namedRoutes = [];
+
+    /**
+     * Compiled routes cache.
+     */
+    protected array $compiledRoutes = [];
+
+    /**
+     * Route caching enabled.
+     */
+    protected bool $cacheEnabled = false;
+
+    /**
+     * Route cache file path.
+     */
+    protected ?string $cacheFile = null;
+
+    /**
+     * Supported HTTP methods.
+     */
+    protected array $httpMethods = [
+        'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'
+    ];
 
     /**
      * Create a new Router instance.
      */
-    public function __construct(ApplicationInterface $container)
+    public function __construct()
     {
-        $this->container = $container;
-        
-        // Load routes from cache if available, otherwise create new collection
-        if ($this->routesAreCached()) {
-            $this->loadCachedRoutes();
-        } else {
-            $this->routes = new RouteCollection();
-        }
+        $this->routes = new RouteCollection();
+        $this->compiler = new RouteCompiler();
+        $this->setDefaultPatterns();
     }
 
-    /**
-     * Determine if routes are cached.
-     */
-    protected function routesAreCached(): bool
-    {
-        return $this->container->routesAreCached();
-    }
+    // ====================================================================
+    // Route Registration Methods
+    // ====================================================================
 
     /**
-     * Load cached routes.
+     * Register a GET route.
      */
-    protected function loadCachedRoutes(): void
-    {
-        $cache = new RouteCache($this->container->getCachedRoutesPath());
-        $cachedData = $cache->load();
-        $this->routes = new CachedRouteCollection($cachedData);
-    }
-
-    /**
-     * Register a new GET route with the router.
-     */
-    public function get(string $uri, mixed $action): RouteInterface
+    public function get(string $uri, mixed $action): Route
     {
         return $this->addRoute(['GET', 'HEAD'], $uri, $action);
     }
 
     /**
-     * Register a new POST route with the router.
+     * Register a POST route.
      */
-    public function post(string $uri, mixed $action): RouteInterface
+    public function post(string $uri, mixed $action): Route
     {
         return $this->addRoute(['POST'], $uri, $action);
     }
 
     /**
-     * Register a new PUT route with the router.
+     * Register a PUT route.
      */
-    public function put(string $uri, mixed $action): RouteInterface
+    public function put(string $uri, mixed $action): Route
     {
         return $this->addRoute(['PUT'], $uri, $action);
     }
 
     /**
-     * Register a new PATCH route with the router.
+     * Register a PATCH route.
      */
-    public function patch(string $uri, mixed $action): RouteInterface
+    public function patch(string $uri, mixed $action): Route
     {
         return $this->addRoute(['PATCH'], $uri, $action);
     }
 
     /**
-     * Register a new DELETE route with the router.
+     * Register a DELETE route.
      */
-    public function delete(string $uri, mixed $action): RouteInterface
+    public function delete(string $uri, mixed $action): Route
     {
         return $this->addRoute(['DELETE'], $uri, $action);
     }
 
     /**
-     * Register a new OPTIONS route with the router.
+     * Register an OPTIONS route.
      */
-    public function options(string $uri, mixed $action): RouteInterface
+    public function options(string $uri, mixed $action): Route
     {
         return $this->addRoute(['OPTIONS'], $uri, $action);
     }
 
     /**
-     * Register a new route responding to all verbs.
+     * Register a route that responds to any HTTP method.
      */
-    public function any(string $uri, mixed $action): RouteInterface
+    public function any(string $uri, mixed $action): Route
     {
-        return $this->addRoute(static::$verbs, $uri, $action);
+        return $this->addRoute($this->httpMethods, $uri, $action);
     }
 
     /**
-     * Register a new Fallback route with the router.
+     * Register a route that responds to multiple HTTP methods.
      */
-    public function fallback(mixed $action): RouteInterface
+    public function match(array $methods, string $uri, mixed $action): Route
     {
-        $placeholder = 'fallbackPlaceholder';
-
-        return $this->addRoute(
-            static::$verbs, "{{$placeholder}}", $action
-        )->where($placeholder, '.*')->fallback();
+        return $this->addRoute(array_map('strtoupper', $methods), $uri, $action);
     }
 
     /**
-     * Register a new route with the given verbs.
+     * Add a route to the collection.
      */
-    public function match(array $methods, string $uri, mixed $action): RouteInterface
+    protected function addRoute(array $methods, string $uri, mixed $action): Route
     {
-        return $this->addRoute(array_map('strtoupper', (array) $methods), $uri, $action);
-    }
-
-    /**
-     * Register an array of resource controllers.
-     */
-    public function resources(array $resources, array $options = []): void
-    {
-        foreach ($resources as $name => $controller) {
-            $this->resource($name, $controller, $options);
-        }
-    }
-
-    /**
-     * Route a resource to a controller.
-     */
-    public function resource(string $name, string $controller, array $options = []): PendingResourceRegistration
-    {
-        if ($this->container && $this->container->bound(ResourceRegistrar::class)) {
-            $registrar = $this->container->make(ResourceRegistrar::class);
-        } else {
-            $registrar = new ResourceRegistrar($this);
+        $uri = $this->normalizeUri($uri);
+        
+        // Apply group attributes
+        $attributes = $this->mergeGroupAttributes([]);
+        
+        if (isset($attributes['prefix'])) {
+            $uri = $this->applyPrefix($uri, $attributes['prefix']);
         }
 
-        return new PendingResourceRegistration(
-            $registrar, $name, $controller, $options
-        );
-    }
-
-    /**
-     * Register an array of API resource controllers.
-     */
-    public function apiResources(array $resources, array $options = []): void
-    {
-        foreach ($resources as $name => $controller) {
-            $this->apiResource($name, $controller, $options);
-        }
-    }
-
-    /**
-     * Route an API resource to a controller.
-     */
-    public function apiResource(string $name, string $controller, array $options = []): PendingResourceRegistration
-    {
-        $only = ['index', 'show', 'store', 'update', 'destroy'];
-
-        if (isset($options['except'])) {
-            $only = array_diff($only, (array) $options['except']);
-        }
-
-        return $this->resource($name, $controller, array_merge([
-            'only' => $only,
-        ], $options));
-    }
-
-    /**
-     * Create a route group with shared attributes.
-     */
-    public function group(array $attributes, \Closure $routes): void
-    {
-        $this->updateGroupStack($attributes);
-
-        $this->loadRoutes($routes);
-
-        array_pop($this->groupStack);
-    }
-
-    /**
-     * Create a route group with a shared prefix.
-     */
-    public function prefix(string $prefix): PendingRouteGroup
-    {
-        return new PendingRouteGroup($this, ['prefix' => $prefix]);
-    }
-
-    /**
-     * Create a route group with shared middleware.
-     */
-    public function middleware(string|array $middleware): PendingRouteGroup
-    {
-        return new PendingRouteGroup($this, ['middleware' => $middleware]);
-    }
-
-    /**
-     * Create a route group with a shared namespace.
-     */
-    public function namespace(string $namespace): PendingRouteGroup
-    {
-        return new PendingRouteGroup($this, ['namespace' => $namespace]);
-    }
-
-    /**
-     * Create a route group with a shared domain.
-     */
-    public function domain(string $domain): PendingRouteGroup
-    {
-        return new PendingRouteGroup($this, ['domain' => $domain]);
-    }
-
-    /**
-     * Create a route group with a shared name prefix.
-     */
-    public function name(string $name): PendingRouteGroup
-    {
-        return new PendingRouteGroup($this, ['as' => $name]);
-    }
-
-    /**
-     * Update the group stack with the given attributes.
-     */
-    protected function updateGroupStack(array $attributes): void
-    {
-        if (!empty($this->groupStack)) {
-            $attributes = $this->mergeWithLastGroup($attributes);
-        }
-
-        $this->groupStack[] = $attributes;
-    }
-
-    /**
-     * Merge the given array with the last group stack.
-     */
-    public function mergeWithLastGroup(array $new, bool $prependExistingPrefix = true): array
-    {
-        return RouteGroup::mergeAttributes($new, end($this->groupStack));
-    }
-
-    /**
-     * Load the provided routes.
-     */
-    protected function loadRoutes(\Closure $routes): void
-    {
-        $routes($this);
-    }
-
-    /**
-     * Get the prefix from the last group on the stack.
-     */
-    public function getLastGroupPrefix(): string
-    {
-        if (!empty($this->groupStack)) {
-            $last = end($this->groupStack);
-
-            return $last['prefix'] ?? '';
-        }
-
-        return '';
-    }
-
-    /**
-     * Add a route to the underlying route collection.
-     */
-    public function addRoute(array $methods, string $uri, mixed $action): RouteInterface
-    {
-        return $this->routes->add($this->createRoute($methods, $uri, $action));
-    }
-
-    /**
-     * Create a new route instance.
-     */
-    protected function createRoute(array $methods, string $uri, mixed $action): RouteInterface
-    {
-        // If the route is routing to a controller we will parse the route action into
-        // an acceptable array format before registering it and creating this route
-        // instance itself. We need to build the Closure that will call this out.
-        if ($this->actionReferencesController($action)) {
-            $action = $this->convertToControllerAction($action);
-        }
-
-        $route = $this->newRoute(
-            $methods, $this->prefix($uri), $action
-        );
-
-        // If we have groups that need to be merged, we will merge them now after this
-        // route has already been created and is ready to go. After we're done with
-        // the merge we will be ready to return the route back out to the caller.
-        if ($this->hasGroupStack()) {
-            $this->mergeGroupAttributesIntoRoute($route);
-        }
-
-        $this->addWhereClausesToRoute($route);
-
+        $route = new Route($methods, $uri, $action);
+        
+        // Apply group attributes to route
+        $this->applyGroupAttributesToRoute($route, $attributes);
+        
+        // Add route to collection
+        $this->routes->add($route);
+        
         return $route;
     }
 
+    // ====================================================================
+    // Route Matching
+    // ====================================================================
+
     /**
-     * Create a new Route object.
+     * Find the route matching a given request.
      */
-    protected function newRoute(array $methods, string $uri, mixed $action): RouteInterface
+    public function matchRequest(Request $request): Route
     {
-        return (new Route($methods, $uri, $action))
-                    ->setRouter($this)
-                    ->setContainer($this->container);
+        $method = $request->method();
+        $pathInfo = $request->path();
+
+        // Try to find exact match first
+        if ($route = $this->findExactMatch($method, $pathInfo)) {
+            return $this->bindParameters($request, $route);
+        }
+
+        // Try compiled routes with parameters
+        if ($route = $this->findCompiledMatch($method, $pathInfo)) {
+            return $this->bindParameters($request, $route);
+        }
+
+        // Check if path exists for other methods
+        $allowedMethods = $this->getAllowedMethods($pathInfo);
+        if (!empty($allowedMethods)) {
+            throw new MethodNotAllowedException($allowedMethods);
+        }
+
+        throw new RouteNotFoundException("Route not found for: {$method} {$pathInfo}");
     }
 
     /**
-     * Prefix the given URI with the last prefix.
+     * Find exact route match.
      */
-    protected function prefix(string $uri): string
+    protected function findExactMatch(string $method, string $pathInfo): ?Route
     {
-        return trim(trim($this->getLastGroupPrefix(), '/') . '/' . trim($uri, '/'), '/') ?: '/';
+        foreach ($this->routes->getByMethod($method) as $route) {
+            if ($route->getUri() === $pathInfo && !$route->hasParameters()) {
+                return $route;
+            }
+        }
+
+        return null;
     }
 
     /**
-     * Add the necessary where clauses to the route based on its initial registration.
+     * Find compiled route match with parameters.
      */
-    protected function addWhereClausesToRoute(RouteInterface $route): void
+    protected function findCompiledMatch(string $method, string $pathInfo): ?Route
     {
-        $route->where(array_merge(
-            $this->patterns, $route->getAction()['where'] ?? []
-        ));
+        foreach ($this->routes->getByMethod($method) as $route) {
+            if ($route->hasParameters()) {
+                $compiled = $this->compileRoute($route);
+                
+                if (preg_match($compiled['regex'], $pathInfo, $matches)) {
+                    // Extract parameter values
+                    $parameters = [];
+                    foreach ($compiled['parameters'] as $i => $name) {
+                        if (isset($matches[$i + 1])) {
+                            $parameters[$name] = $matches[$i + 1];
+                        }
+                    }
+                    
+                    $route->setParameters($parameters);
+                    return $route;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
-     * Merge the group stack with the controller action.
+     * Get allowed methods for a path.
      */
-    protected function mergeGroupAttributesIntoRoute(RouteInterface $route): void
+    protected function getAllowedMethods(string $pathInfo): array
     {
-        $route->setAction($this->mergeWithLastGroup(
-            $route->getAction(), $prependExistingPrefix = false
-        ));
+        $allowedMethods = [];
+
+        foreach ($this->routes->all() as $route) {
+            if ($this->routeMatchesPath($route, $pathInfo)) {
+                $allowedMethods = array_merge($allowedMethods, $route->getMethods());
+            }
+        }
+
+        return array_unique($allowedMethods);
     }
 
     /**
-     * Determine if the action is routing to a controller.
+     * Check if route matches path (ignoring method).
      */
-    protected function actionReferencesController(mixed $action): bool
+    protected function routeMatchesPath(Route $route, string $pathInfo): bool
     {
-        if (!$action instanceof \Closure) {
-            return is_string($action) || (isset($action['uses']) && is_string($action['uses']));
+        if ($route->getUri() === $pathInfo) {
+            return true;
+        }
+
+        if ($route->hasParameters()) {
+            $compiled = $this->compileRoute($route);
+            return preg_match($compiled['regex'], $pathInfo) === 1;
         }
 
         return false;
     }
 
+    // ====================================================================
+    // Route Compilation
+    // ====================================================================
+
     /**
-     * Add a controller based route action to the action array.
+     * Compile a route pattern.
      */
-    protected function convertToControllerAction(mixed $action): array
+    protected function compileRoute(Route $route): array
     {
-        if (is_string($action)) {
-            $action = ['uses' => $action];
+        $uri = $route->getUri();
+        
+        if (isset($this->compiledRoutes[$uri])) {
+            return $this->compiledRoutes[$uri];
         }
 
-        // Here we'll merge any group "uses" statement if necessary so that the action
-        // has the proper clause for this property. Then we can simply set the name
-        // of the controller on the action and return the action array for usage.
-        if (!empty($this->groupStack)) {
-            $action['uses'] = $this->prependGroupNamespace($action['uses']);
+        $compiled = $this->compiler->compile($route, $this->patterns);
+        $this->compiledRoutes[$uri] = $compiled;
+        
+        return $compiled;
+    }
+
+    // ====================================================================
+    // Parameter Binding
+    // ====================================================================
+
+    /**
+     * Bind parameters to request.
+     */
+    protected function bindParameters(Request $request, Route $route): Route
+    {
+        $parameters = $route->getParameters();
+        
+        // Apply model bindings
+        foreach ($parameters as $name => $value) {
+            if (isset($this->bindings[$name])) {
+                $parameters[$name] = $this->performBinding($name, $value);
+            }
         }
 
-        // Here we will set this controller name on the action array just so we always
-        // have a copy of it for reference if we need it. This can be used while we
-        // search for a controller name or do some other type of fetch operation.
-        $action['controller'] = $action['uses'];
-
-        return $action;
-    }
-
-    /**
-     * Prepend the last group namespace onto the use clause.
-     */
-    protected function prependGroupNamespace(string $class): string
-    {
-        $group = end($this->groupStack);
-
-        return isset($group['namespace']) && !str_starts_with($class, '\\')
-            ? $group['namespace'] . '\\' . $class : $class;
-    }
-
-    /**
-     * Dispatch the request to the application.
-     */
-    public function dispatch(RequestInterface $request): ResponseInterface
-    {
-        $this->currentRequest = $request;
-
-        return $this->dispatchToRoute($request);
-    }
-
-    /**
-     * Dispatch the request to a route and return the response.
-     */
-    public function dispatchToRoute(RequestInterface $request): ResponseInterface
-    {
-        return $this->runRoute($request, $this->findRoute($request));
-    }
-
-    /**
-     * Find the route matching a given request.
-     */
-    protected function findRoute(RequestInterface $request): RouteInterface
-    {
-        $this->current = $route = $this->routes->match($request);
-
-        $this->container->instance(RouteInterface::class, $route);
-
+        $route->setParameters($parameters);
+        $request->setRouteParameters($parameters);
+        
         return $route;
     }
 
     /**
-     * Return the response for the given route.
+     * Perform model binding for a parameter.
      */
-    protected function runRoute(RequestInterface $request, RouteInterface $route): ResponseInterface
+    protected function performBinding(string $key, mixed $value): mixed
     {
-        $request->setRouteResolver(function () use ($route) {
-            return $route;
-        });
-
-        return $route->bind($request)->run();
+        $binding = $this->bindings[$key];
+        
+        if ($binding instanceof Closure) {
+            return $binding($value);
+        }
+        
+        if (is_string($binding)) {
+            // Assume it's a model class name
+            return $binding::find($value);
+        }
+        
+        return $value;
     }
 
     /**
-     * Determine if the router currently has a group stack.
+     * Register a model binding.
      */
-    public function hasGroupStack(): bool
+    public function model(string $key, string $class): void
     {
-        return !empty($this->groupStack);
+        $this->bindings[$key] = $class;
     }
 
     /**
-     * Get the current group stack for the router.
+     * Register a custom binding.
      */
-    public function getGroupStack(): array
+    public function bind(string $key, Closure $resolver): void
     {
-        return $this->groupStack;
+        $this->bindings[$key] = $resolver;
+    }
+
+    // ====================================================================
+    // Route Groups
+    // ====================================================================
+
+    /**
+     * Create a route group.
+     */
+    public function group(array $attributes, Closure $callback): void
+    {
+        $this->groupStack[] = $attributes;
+        
+        $callback($this);
+        
+        array_pop($this->groupStack);
     }
 
     /**
-     * Set the group stack for the router.
+     * Apply group attributes to route.
      */
-    public function setGroupStack(array $groupStack): void
+    protected function applyGroupAttributesToRoute(Route $route, array $attributes): void
     {
-        $this->groupStack = $groupStack;
-    }
-
-    /**
-     * Push new group attributes onto the group stack.
-     */
-    public function pushGroup(array $attributes): void
-    {
-        $this->updateGroupStack($attributes);
-    }
-
-    /**
-     * Get the underlying route collection.
-     */
-    public function getRoutes(): RouteCollectionInterface
-    {
-        return $this->routes;
-    }
-
-    /**
-     * Get the current route instance.
-     */
-    public function getCurrentRoute(): ?RouteInterface
-    {
-        return $this->current;
-    }
-
-    /**
-     * Get the current request instance.
-     */
-    public function getCurrentRequest(): ?RequestInterface
-    {
-        return $this->currentRequest;
-    }
-
-    /**
-     * Set the global parameter patterns.
-     */
-    public function patterns(array $patterns): void
-    {
-        foreach ($patterns as $key => $pattern) {
-            $this->pattern($key, $pattern);
+        if (isset($attributes['middleware'])) {
+            $route->middleware($attributes['middleware']);
+        }
+        
+        if (isset($attributes['name'])) {
+            $route->name($attributes['name']);
+        }
+        
+        if (isset($attributes['namespace'])) {
+            $route->namespace($attributes['namespace']);
+        }
+        
+        if (isset($attributes['where'])) {
+            $route->where($attributes['where']);
         }
     }
 
     /**
-     * Set a global parameter pattern.
+     * Merge group attributes.
+     */
+    protected function mergeGroupAttributes(array $new): array
+    {
+        $attributes = [];
+        
+        foreach ($this->groupStack as $group) {
+            $attributes = $this->mergeGroup($attributes, $group);
+        }
+        
+        return $this->mergeGroup($attributes, $new);
+    }
+
+    /**
+     * Merge two sets of group attributes.
+     */
+    protected function mergeGroup(array $old, array $new): array
+    {
+        $merged = $old;
+        
+        // Merge middleware
+        if (isset($old['middleware']) || isset($new['middleware'])) {
+            $merged['middleware'] = array_unique(array_merge(
+                $old['middleware'] ?? [],
+                $new['middleware'] ?? []
+            ));
+        }
+        
+        // Merge prefixes
+        if (isset($old['prefix']) || isset($new['prefix'])) {
+            $merged['prefix'] = trim(
+                ($old['prefix'] ?? '') . '/' . ($new['prefix'] ?? ''),
+                '/'
+            );
+        }
+        
+        // Merge names
+        if (isset($old['name']) || isset($new['name'])) {
+            $merged['name'] = ($old['name'] ?? '') . ($new['name'] ?? '');
+        }
+        
+        // Other attributes override
+        foreach (['namespace', 'where', 'domain'] as $key) {
+            if (isset($new[$key])) {
+                $merged[$key] = $new[$key];
+            } elseif (isset($old[$key])) {
+                $merged[$key] = $old[$key];
+            }
+        }
+        
+        return $merged;
+    }
+
+    // ====================================================================
+    // Resource Routes
+    // ====================================================================
+
+    /**
+     * Register resource routes.
+     */
+    public function resource(string $name, string $controller, array $options = []): void
+    {
+        $actions = $options['only'] ?? ['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'];
+        
+        if (isset($options['except'])) {
+            $actions = array_diff($actions, $options['except']);
+        }
+
+        $resourceRoutes = [
+            'index' => ['GET', $name, 'index'],
+            'create' => ['GET', $name . '/create', 'create'],
+            'store' => ['POST', $name, 'store'],
+            'show' => ['GET', $name . '/{id}', 'show'],
+            'edit' => ['GET', $name . '/{id}/edit', 'edit'],
+            'update' => ['PUT', $name . '/{id}', 'update'],
+            'destroy' => ['DELETE', $name . '/{id}', 'destroy'],
+        ];
+
+        foreach ($actions as $action) {
+            if (isset($resourceRoutes[$action])) {
+                [$method, $uri, $controllerAction] = $resourceRoutes[$action];
+                
+                $route = $this->addRoute([$method], $uri, $controller . '@' . $controllerAction);
+                $route->name($name . '.' . $action);
+                
+                if (in_array($action, ['show', 'edit', 'update', 'destroy'])) {
+                    $route->where('id', '[0-9]+');
+                }
+            }
+        }
+    }
+
+    // ====================================================================
+    // Named Routes
+    // ====================================================================
+
+    /**
+     * Get route by name.
+     */
+    public function getByName(string $name): ?Route
+    {
+        if (isset($this->namedRoutes[$name])) {
+            return $this->namedRoutes[$name];
+        }
+
+        foreach ($this->routes->all() as $route) {
+            if ($route->getName() === $name) {
+                $this->namedRoutes[$name] = $route;
+                return $route;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Generate URL for named route.
+     */
+    public function route(string $name, array $parameters = [], bool $absolute = true): string
+    {
+        $route = $this->getByName($name);
+        
+        if (!$route) {
+            throw new InvalidArgumentException("Route [{$name}] not defined.");
+        }
+
+        return $this->generateUrl($route, $parameters, $absolute);
+    }
+
+    /**
+     * Generate URL from route.
+     */
+    protected function generateUrl(Route $route, array $parameters = [], bool $absolute = true): string
+    {
+        $uri = $route->getUri();
+        
+        // Replace parameters in URI
+        foreach ($parameters as $key => $value) {
+            $uri = str_replace('{' . $key . '}', $value, $uri);
+            $uri = str_replace('{' . $key . '?}', $value, $uri);
+        }
+
+        // Remove optional parameters not provided
+        $uri = preg_replace('/\{[^}]+\?\}/', '', $uri);
+        
+        // Clean up multiple slashes
+        $uri = preg_replace('#/+#', '/', '/' . trim($uri, '/'));
+
+        if ($absolute) {
+            // In a real implementation, this would get the base URL from config
+            $baseUrl = 'http://localhost';
+            return $baseUrl . $uri;
+        }
+
+        return $uri;
+    }
+
+    // ====================================================================
+    // Route Constraints
+    // ====================================================================
+
+    /**
+     * Set global parameter pattern.
      */
     public function pattern(string $key, string $pattern): void
     {
@@ -565,65 +573,208 @@ class Router implements RouterInterface
     }
 
     /**
-     * Determine if the given array of patterns and the given request match.
+     * Set multiple parameter patterns.
      */
-    public function hasValidSignature(RequestInterface $request, bool $absolute = true, array $ignoreQuery = []): bool
+    public function patterns(array $patterns): void
     {
-        return URL::hasValidSignature($request, $absolute, $ignoreQuery);
+        $this->patterns = array_merge($this->patterns, $patterns);
     }
 
     /**
-     * Register a route matched event listener.
+     * Set default parameter patterns.
      */
-    public function matched(callable $callback): void
+    protected function setDefaultPatterns(): void
     {
-        $this->events->listen(Events\RouteMatched::class, $callback);
+        $this->patterns = [
+            'id' => '[0-9]+',
+            'slug' => '[a-z0-9-]+',
+            'uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',
+            'alpha' => '[a-zA-Z]+',
+            'num' => '[0-9]+',
+        ];
+    }
+
+    // ====================================================================
+    // Route Caching
+    // ====================================================================
+
+    /**
+     * Enable route caching.
+     */
+    public function enableCache(string $cacheFile): void
+    {
+        $this->cacheEnabled = true;
+        $this->cacheFile = $cacheFile;
     }
 
     /**
-     * Get all middleware, including global middleware.
+     * Load routes from cache.
      */
-    public static function uniqueMiddleware(array $middleware): array
+    public function loadCache(): bool
     {
-        return array_unique($middleware, SORT_REGULAR);
-    }
-
-    /**
-     * Set the unmapped global resource parameters to singular.
-     */
-    public function singularResourceParameters(bool $singular = true): static
-    {
-        ResourceRegistrar::singularParameters($singular);
-
-        return $this;
-    }
-
-    /**
-     * Set the global resource parameter mapping.
-     */
-    public function resourceParameters(array $parameters = []): static
-    {
-        ResourceRegistrar::setParameters($parameters);
-
-        return $this;
-    }
-
-    /**
-     * Get or set the verbs used in the resource URIs.
-     */
-    public function resourceVerbs(array $verbs = []): array|static
-    {
-        if (!empty($verbs)) {
-            ResourceRegistrar::verbs($verbs);
-
-            return $this;
+        if (!$this->cacheEnabled || !$this->cacheFile || !file_exists($this->cacheFile)) {
+            return false;
         }
 
-        return ResourceRegistrar::$verbs;
+        $cached = include $this->cacheFile;
+        
+        if (is_array($cached) && isset($cached['routes'], $cached['compiled'])) {
+            $this->routes = unserialize($cached['routes']);
+            $this->compiledRoutes = $cached['compiled'];
+            return true;
+        }
+
+        return false;
     }
 
     /**
-     * The available router verbs.
+     * Cache compiled routes.
      */
-    public static array $verbs = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
+    public function cacheRoutes(): bool
+    {
+        if (!$this->cacheEnabled || !$this->cacheFile) {
+            return false;
+        }
+
+        $cached = [
+            'routes' => serialize($this->routes),
+            'compiled' => $this->compiledRoutes,
+            'timestamp' => time(),
+        ];
+
+        $content = "<?php\n\nreturn " . var_export($cached, true) . ";\n";
+        
+        return file_put_contents($this->cacheFile, $content, LOCK_EX) !== false;
+    }
+
+    /**
+     * Clear route cache.
+     */
+    public function clearCache(): bool
+    {
+        if ($this->cacheFile && file_exists($this->cacheFile)) {
+            return unlink($this->cacheFile);
+        }
+
+        return true;
+    }
+
+    // ====================================================================
+    // Utility Methods
+    // ====================================================================
+
+    /**
+     * Get all routes.
+     */
+    public function getRoutes(): RouteCollection
+    {
+        return $this->routes;
+    }
+
+    /**
+     * Get route count.
+     */
+    public function count(): int
+    {
+        return $this->routes->count();
+    }
+
+    /**
+     * Check if router has routes.
+     */
+    public function hasRoutes(): bool
+    {
+        return $this->routes->count() > 0;
+    }
+
+    /**
+     * Normalize URI.
+     */
+    protected function normalizeUri(string $uri): string
+    {
+        // Ensure URI starts with /
+        $uri = '/' . ltrim($uri, '/');
+        
+        // Remove trailing slash unless it's root
+        if ($uri !== '/' && str_ends_with($uri, '/')) {
+            $uri = rtrim($uri, '/');
+        }
+
+        return $uri;
+    }
+
+    /**
+     * Apply prefix to URI.
+     */
+    protected function applyPrefix(string $uri, string $prefix): string
+    {
+        $prefix = trim($prefix, '/');
+        
+        if (empty($prefix)) {
+            return $uri;
+        }
+
+        return '/' . $prefix . $uri;
+    }
+
+    /**
+     * Get router statistics.
+     */
+    public function getStats(): array
+    {
+        $stats = [
+            'total_routes' => $this->routes->count(),
+            'compiled_routes' => count($this->compiledRoutes),
+            'named_routes' => count($this->namedRoutes),
+            'patterns' => count($this->patterns),
+            'cache_enabled' => $this->cacheEnabled,
+        ];
+
+        // Count routes by method
+        foreach ($this->httpMethods as $method) {
+            $stats['routes_by_method'][strtolower($method)] = count($this->routes->getByMethod($method));
+        }
+
+        return $stats;
+    }
+
+    /**
+     * Get route list for debugging.
+     */
+    public function getRouteList(): array
+    {
+        $list = [];
+
+        foreach ($this->routes->all() as $route) {
+            $list[] = [
+                'methods' => implode('|', $route->getMethods()),
+                'uri' => $route->getUri(),
+                'name' => $route->getName(),
+                'action' => $this->formatAction($route->getAction()),
+                'middleware' => implode('|', $route->getMiddleware()),
+            ];
+        }
+
+        return $list;
+    }
+
+    /**
+     * Format action for display.
+     */
+    protected function formatAction(mixed $action): string
+    {
+        if ($action instanceof Closure) {
+            return 'Closure';
+        }
+
+        if (is_string($action)) {
+            return $action;
+        }
+
+        if (is_array($action)) {
+            return implode('@', $action);
+        }
+
+        return 'Unknown';
+    }
 }

@@ -12,6 +12,7 @@ use Horizon\Contracts\Database\QueryGrammarInterface;
 use Horizon\Contracts\Database\ProcessorInterface;
 use Horizon\Database\Query\JoinClause;
 use Horizon\Database\Query\Expression;
+use Horizon\Database\Concerns\PreventsSqlInjection;
 
 /**
  * Query Builder
@@ -20,6 +21,7 @@ use Horizon\Database\Query\Expression;
  */
 class QueryBuilder implements QueryBuilderInterface
 {
+    use PreventsSqlInjection;
     /**
      * The database connection instance.
      */
