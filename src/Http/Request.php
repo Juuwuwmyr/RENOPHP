@@ -1115,6 +1115,140 @@ class Request
     {
         return $this->has($key);
     }
+
+    // ====================================================================
+    // Validation Methods
+    // ====================================================================
+
+    /**
+     * Validate the request data
+     *
+     * @param array $rules
+     * @param array $messages
+     * @param array $customAttributes
+     * @return array Validated data
+     * @throws \Horizon\Validation\ValidationException
+     */
+    public function validate(array $rules, array $messages = [], array $customAttributes = []): array
+    {
+        $validator = $this->getValidatorInstance($rules, $messages, $customAttributes);
+
+        return $validator->validated();
+    }
+
+    /**
+     * Validate the request and return a validator instance
+     *
+     * @param array $rules
+     * @param array $messages
+     * @param array $customAttributes
+     * @return \Horizon\Validation\Validator
+     */
+    public function getValidator(array $rules, array $messages = [], array $customAttributes = []): \Horizon\Validation\Validator
+    {
+        return $this->getValidatorInstance($rules, $messages, $customAttributes);
+    }
+
+    /**
+     * Validate only if request fails validation
+     *
+     * @param array $rules
+     * @param array $messages
+     * @param array $customAttributes
+     * @return \Horizon\Validation\Validator
+     */
+    public function validator(array $rules, array $messages = [], array $customAttributes = []): \Horizon\Validation\Validator
+    {
+        return $this->getValidatorInstance($rules, $messages, $customAttributes);
+    }
+
+    /**
+     * Validate and get only the validated data (doesn't throw)
+     *
+     * @param array $rules
+     * @param array $messages
+     * @param array $customAttributes
+     * @return array|null Returns null if validation fails
+     */
+    public function validated(array $rules, array $messages = [], array $customAttributes = []): ?array
+    {
+        $validator = $this->getValidatorInstance($rules, $messages, $customAttributes);
+
+        if ($validator->fails()) {
+            return null;
+        }
+
+        return $validator->validated();
+    }
+
+    /**
+     * Check if request would pass validation
+     *
+     * @param array $rules
+     * @param array $messages
+     * @param array $customAttributes
+     * @return bool
+     */
+    public function passesValidation(array $rules, array $messages = [], array $customAttributes = []): bool
+    {
+        $validator = $this->getValidatorInstance($rules, $messages, $customAttributes);
+
+        return $validator->passes();
+    }
+
+    /**
+     * Check if request would fail validation
+     *
+     * @param array $rules
+     * @param array $messages
+     * @param array $customAttributes
+     * @return bool
+     */
+    public function failsValidation(array $rules, array $messages = [], array $customAttributes = []): bool
+    {
+        $validator = $this->getValidatorInstance($rules, $messages, $customAttributes);
+
+        return $validator->fails();
+    }
+
+    /**
+     * Get validation errors
+     *
+     * @param array $rules
+     * @param array $messages
+     * @param array $customAttributes
+     * @return \Horizon\Validation\MessageBag
+     */
+    public function getValidationErrors(array $rules, array $messages = [], array $customAttributes = []): \Horizon\Validation\MessageBag
+    {
+        $validator = $this->getValidatorInstance($rules, $messages, $customAttributes);
+        $validator->validate();
+
+        return $validator->errors();
+    }
+
+    /**
+     * Create a validator instance
+     *
+     * @param array $rules
+     * @param array $messages
+     * @param array $customAttributes
+     * @return \Horizon\Validation\Validator
+     */
+    protected function getValidatorInstance(array $rules, array $messages = [], array $customAttributes = []): \Horizon\Validation\Validator
+    {
+        // Get all input data (form data + files)
+        $data = array_merge($this->all(), $this->allFiles());
+
+        $validator = new \Horizon\Validation\Validator($data, $rules, $messages, $customAttributes);
+
+        // If database connection is available in attributes, set it
+        if ($this->hasAttribute('db')) {
+            $validator->setDatabase($this->getAttribute('db'));
+        }
+
+        return $validator;
+    }
 }
 
 /**

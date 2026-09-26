@@ -249,3 +249,664 @@ if (!function_exists('tap')) {
         return $value;
     }
 }
+
+// ============================================================================
+// View Helpers
+// ============================================================================
+
+if (!function_exists('view')) {
+    /**
+     * Create a view instance or get the view factory
+     *
+     * @param string|null $view
+     * @param array $data
+     * @return \Horizon\View\ViewFactory|\Horizon\View\View
+     */
+    function view(?string $view = null, array $data = [])
+    {
+        $factory = app('view');
+
+        if ($view === null) {
+            return $factory;
+        }
+
+        return $factory->make($view, $data);
+    }
+}
+
+if (!function_exists('e')) {
+    /**
+     * Escape HTML entities for safe output (XSS protection)
+     *
+     * @param mixed $value
+     * @param bool $doubleEncode
+     * @return string
+     */
+    function e(mixed $value, bool $doubleEncode = true): string
+    {
+        if ($value === null) {
+            return '';
+        }
+
+        if (is_array($value) || is_object($value)) {
+            return htmlspecialchars(json_encode($value), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', $doubleEncode);
+        }
+
+        return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', $doubleEncode);
+    }
+}
+
+if (!function_exists('escape')) {
+    /**
+     * Alias for e() - escape HTML entities
+     *
+     * @param mixed $value
+     * @param bool $doubleEncode
+     * @return string
+     */
+    function escape(mixed $value, bool $doubleEncode = true): string
+    {
+        return e($value, $doubleEncode);
+    }
+}
+
+if (!function_exists('raw')) {
+    /**
+     * Output raw (unescaped) HTML - USE WITH CAUTION!
+     * 
+     * Only use when you KNOW the content is safe.
+     * Examples: trusted HTML from WYSIWYG editor, SVG icons
+     *
+     * @param mixed $value
+     * @return string
+     */
+    function raw(mixed $value): string
+    {
+        if ($value === null) {
+            return '';
+        }
+
+        return (string) $value;
+    }
+}
+
+if (!function_exists('csrf_field')) {
+    /**
+     * Generate CSRF token hidden input field
+     *
+     * @return string
+     */
+    function csrf_field(): string
+    {
+        $token = csrf_token();
+        return '<input type="hidden" name="_token" value="' . e($token) . '">';
+    }
+}
+
+if (!function_exists('csrf_token')) {
+    /**
+     * Get the CSRF token value
+     *
+     * @return string
+     */
+    function csrf_token(): string
+    {
+        // TODO: Integrate with session when available
+        if (!isset($_SESSION['_token'])) {
+            $_SESSION['_token'] = bin2hex(random_bytes(32));
+        }
+        return $_SESSION['_token'];
+    }
+}
+
+if (!function_exists('method_field')) {
+    /**
+     * Generate hidden input for HTTP method spoofing
+     *
+     * @param string $method
+     * @return string
+     */
+    function method_field(string $method): string
+    {
+        $method = strtoupper($method);
+        return '<input type="hidden" name="_method" value="' . e($method) . '">';
+    }
+}
+
+if (!function_exists('old')) {
+    /**
+     * Retrieve old input value (from session flash data)
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    function old(string $key, mixed $default = null): mixed
+    {
+        // TODO: Integrate with session flash when available
+        return $default;
+    }
+}
+
+if (!function_exists('json_encode_safe')) {
+    /**
+     * JSON encode with proper escaping for use in HTML
+     *
+     * @param mixed $value
+     * @param int $options
+     * @return string
+     */
+    function json_encode_safe(mixed $value, int $options = 0): string
+    {
+        $json = json_encode($value, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | $options);
+        
+        if ($json === false) {
+            throw new \RuntimeException('Failed to encode value as JSON: ' . json_last_error_msg());
+        }
+        
+        return $json;
+    }
+}
+
+// ============================================================================
+// Layout Helpers
+// ============================================================================
+
+if (!function_exists('extend')) {
+    /**
+     * Extend a parent layout
+     *
+     * @param string $layout
+     * @return void
+     */
+    function extend(string $layout): void
+    {
+        $engine = view()->getEngine();
+        if (method_exists($engine, 'extend')) {
+            $engine->extend($layout);
+        }
+    }
+}
+
+if (!function_exists('section')) {
+    /**
+     * Start a section
+     *
+     * @param string $name
+     * @param string|null $content
+     * @return void
+     */
+    function section(string $name, ?string $content = null): void
+    {
+        $engine = view()->getEngine();
+        if (method_exists($engine, 'startSection')) {
+            $engine->startSection($name, $content);
+        }
+    }
+}
+
+if (!function_exists('endsection')) {
+    /**
+     * End the current section
+     *
+     * @return void
+     */
+    function endsection(): void
+    {
+        $engine = view()->getEngine();
+        if (method_exists($engine, 'stopSection')) {
+            $engine->stopSection();
+        }
+    }
+}
+
+if (!function_exists('show')) {
+    /**
+     * Stop section and return content
+     *
+     * @return string
+     */
+    function show(): string
+    {
+        $engine = view()->getEngine();
+        if (method_exists($engine, 'stopSection')) {
+            return $engine->stopSection();
+        }
+        return '';
+    }
+}
+
+if (!function_exists('yield_content')) {
+    /**
+     * Yield the content of a section
+     *
+     * @param string $section
+     * @param string $default
+     * @return string
+     */
+    function yield_content(string $section, string $default = ''): string
+    {
+        $engine = view()->getEngine();
+        if (method_exists($engine, 'yieldContent')) {
+            return $engine->yieldContent($section, $default);
+        }
+        return $default;
+    }
+}
+
+if (!function_exists('has_section')) {
+    /**
+     * Check if section exists
+     *
+     * @param string $section
+     * @return bool
+     */
+    function has_section(string $section): bool
+    {
+        $engine = view()->getEngine();
+        if (method_exists($engine, 'hasSection')) {
+            return $engine->hasSection($section);
+        }
+        return false;
+    }
+}
+
+if (!function_exists('push')) {
+    /**
+     * Start pushing content to a stack
+     *
+     * @param string $stack
+     * @return void
+     */
+    function push(string $stack): void
+    {
+        $engine = view()->getEngine();
+        if (method_exists($engine, 'startPush')) {
+            $engine->startPush($stack);
+        }
+    }
+}
+
+if (!function_exists('endpush')) {
+    /**
+     * Stop pushing content to a stack
+     *
+     * @return void
+     */
+    function endpush(): void
+    {
+        $engine = view()->getEngine();
+        if (method_exists($engine, 'stopPush')) {
+            $engine->stopPush();
+        }
+    }
+}
+
+if (!function_exists('prepend')) {
+    /**
+     * Start prepending content to a stack
+     *
+     * @param string $stack
+     * @return void
+     */
+    function prepend(string $stack): void
+    {
+        $engine = view()->getEngine();
+        if (method_exists($engine, 'startPrepend')) {
+            $engine->startPrepend($stack);
+        }
+    }
+}
+
+if (!function_exists('endprepend')) {
+    /**
+     * Stop prepending content to a stack
+     *
+     * @return void
+     */
+    function endprepend(): void
+    {
+        $engine = view()->getEngine();
+        if (method_exists($engine, 'stopPrepend')) {
+            $engine->stopPrepend();
+        }
+    }
+}
+
+if (!function_exists('stack')) {
+    /**
+     * Get the content of a stack
+     *
+     * @param string $stack
+     * @return string
+     */
+    function stack(string $stack): string
+    {
+        $engine = view()->getEngine();
+        if (method_exists($engine, 'yieldPushContent')) {
+            return $engine->yieldPushContent($stack);
+        }
+        return '';
+    }
+}
+
+// ============================================================================
+// Component Helpers
+// ============================================================================
+
+if (!function_exists('component')) {
+    /**
+     * Start a component
+     *
+     * @param string|\Horizon\View\Component $component
+     * @param array $data
+     * @return void
+     */
+    function component(string|\Horizon\View\Component $component, array $data = []): void
+    {
+        $engine = view()->getEngine();
+        if (method_exists($engine, 'startComponent')) {
+            $engine->startComponent($component, $data);
+        }
+    }
+}
+
+if (!function_exists('endcomponent')) {
+    /**
+     * End the current component
+     *
+     * @return string
+     */
+    function endcomponent(): string
+    {
+        $engine = view()->getEngine();
+        if (method_exists($engine, 'endComponent')) {
+            return $engine->endComponent();
+        }
+        return '';
+    }
+}
+
+if (!function_exists('slot')) {
+    /**
+     * Start a component slot
+     *
+     * @param string $name
+     * @param string|null $content
+     * @return void
+     */
+    function slot(string $name, ?string $content = null): void
+    {
+        $engine = view()->getEngine();
+        if (method_exists($engine, 'startSlot')) {
+            $engine->startSlot($name, $content);
+        }
+    }
+}
+
+if (!function_exists('endslot')) {
+    /**
+     * End the current slot
+     *
+     * @return void
+     */
+    function endslot(): void
+    {
+        $engine = view()->getEngine();
+        if (method_exists($engine, 'endSlot')) {
+            $engine->endSlot();
+        }
+    }
+}
+
+if (!function_exists('render_component')) {
+    /**
+     * Render a component inline
+     *
+     * @param string|\Horizon\View\Component $component
+     * @param array $data
+     * @return string
+     */
+    function render_component(string|\Horizon\View\Component $component, array $data = []): string
+    {
+        $engine = view()->getEngine();
+        if (method_exists($engine, 'renderComponent')) {
+            return $engine->renderComponent($component, $data);
+        }
+        return '';
+    }
+}
+
+// ============================================================================
+// View Cache Helpers
+// ============================================================================
+
+if (!function_exists('view_cache_clear')) {
+    /**
+     * Clear the view cache
+     *
+     * @return int Number of files deleted
+     */
+    function view_cache_clear(): int
+    {
+        $cachePath = storage_path('framework/views');
+        
+        if (!is_dir($cachePath)) {
+            return 0;
+        }
+
+        $manager = new \Horizon\View\ViewCacheManager($cachePath);
+        return $manager->flush();
+    }
+}
+
+if (!function_exists('view_cache_stats')) {
+    /**
+     * Get view cache statistics
+     *
+     * @return array
+     */
+    function view_cache_stats(): array
+    {
+        $cachePath = storage_path('framework/views');
+        $manager = new \Horizon\View\ViewCacheManager($cachePath);
+        return $manager->getStats();
+    }
+}
+
+// ============================================================================
+// Authentication Helpers
+// ============================================================================
+
+if (!function_exists('auth')) {
+    /**
+     * Get the auth manager instance or a guard
+     *
+     * @param string|null $guard
+     * @return \Horizon\Auth\AuthManager|\Horizon\Auth\Contracts\Guard
+     */
+    function auth(?string $guard = null)
+    {
+        $auth = app('auth');
+        
+        if (is_null($guard)) {
+            return $auth;
+        }
+
+        return $auth->guard($guard);
+    }
+}
+
+if (!function_exists('user')) {
+    /**
+     * Get the currently authenticated user
+     *
+     * @param string|null $guard
+     * @return \Horizon\Auth\Contracts\Authenticatable|null
+     */
+    function user(?string $guard = null)
+    {
+        return auth($guard)->user();
+    }
+}
+
+if (!function_exists('guest')) {
+    /**
+     * Determine if the current user is a guest
+     *
+     * @param string|null $guard
+     * @return bool
+     */
+    function guest(?string $guard = null): bool
+    {
+        return auth($guard)->guest();
+    }
+}
+
+if (!function_exists('check')) {
+    /**
+     * Determine if the current user is authenticated
+     *
+     * @param string|null $guard
+     * @return bool
+     */
+    function check(?string $guard = null): bool
+    {
+        return auth($guard)->check();
+    }
+}
+
+// ============================================================================
+// Session Helpers
+// ============================================================================
+
+if (!function_exists('session')) {
+    /**
+     * Get / set the session value
+     *
+     * @param string|array|null $key
+     * @param mixed $default
+     * @return mixed|\Horizon\Session\SessionManager
+     */
+    function session($key = null, $default = null)
+    {
+        $session = app('session');
+
+        if (is_null($key)) {
+            return $session;
+        }
+
+        if (is_array($key)) {
+            $session->put($key);
+            return null;
+        }
+
+        return $session->get($key, $default);
+    }
+}
+
+if (!function_exists('csrf_token')) {
+    /**
+     * Get the CSRF token value
+     *
+     * @return string
+     */
+    function csrf_token(): string
+    {
+        return session()->token();
+    }
+}
+
+if (!function_exists('old')) {
+    /**
+     * Retrieve an old input item
+     *
+     * @param string|null $key
+     * @param mixed $default
+     * @return mixed
+     */
+    function old(?string $key = null, $default = null)
+    {
+        $old = session()->get('_old_input', []);
+
+        if (is_null($key)) {
+            return $old;
+        }
+
+        return $old[$key] ?? $default;
+    }
+}
+
+if (!function_exists('flash')) {
+    /**
+     * Flash data to the session
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return void
+     */
+    function flash(string $key, $value): void
+    {
+        session()->flash($key, $value);
+    }
+}
+
+// ============================================================================
+// Hashing Helpers
+// ============================================================================
+
+if (!function_exists('hash_make')) {
+    /**
+     * Hash a value using the default hasher
+     *
+     * @param string $value
+     * @param array $options
+     * @return string
+     */
+    function hash_make(string $value, array $options = []): string
+    {
+        return app('hash')->make($value, $options);
+    }
+}
+
+if (!function_exists('hash_check')) {
+    /**
+     * Check a plain value against a hash
+     *
+     * @param string $value
+     * @param string $hashedValue
+     * @return bool
+     */
+    function hash_check(string $value, string $hashedValue): bool
+    {
+        return app('hash')->check($value, $hashedValue);
+    }
+}
+
+if (!function_exists('hash_needs_rehash')) {
+    /**
+     * Check if a hash needs to be rehashed
+     *
+     * @param string $hashedValue
+     * @param array $options
+     * @return bool
+     */
+    function hash_needs_rehash(string $hashedValue, array $options = []): bool
+    {
+        return app('hash')->needsRehash($hashedValue, $options);
+    }
+}
+
+if (!function_exists('bcrypt')) {
+    /**
+     * Hash a value using bcrypt
+     *
+     * @param string $value
+     * @param array $options
+     * @return string
+     */
+    function bcrypt(string $value, array $options = []): string
+    {
+        return app('hash')->driver('bcrypt')->make($value, $options);
+    }
+}
