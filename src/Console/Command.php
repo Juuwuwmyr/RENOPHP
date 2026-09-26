@@ -1,67 +1,152 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Horizon\Console;
 
 /**
- * Base Console Command
+ * Command
  * 
- * Base class for all console commands in the Horizon Framework.
- * Provides common functionality for argument/option handling, output, and execution.
+ * Base class for all console commands.
+ * 
+ * Philosophy: "Less Magic. More Understanding."
+ * - Clear command structure
+ * - Simple input/output
+ * - Easy to extend
+ * - Testable
  */
 abstract class Command
 {
     /**
-     * The name and signature of the console command.
+     * The console application
+     *
+     * @var Application|null
      */
-    protected string $signature = '';
+    protected ?Application $application = null;
 
     /**
-     * The console command description.
+     * Command name
+     *
+     * @var string
+     */
+    protected string $name = '';
+
+    /**
+     * Command description
+     *
+     * @var string
      */
     protected string $description = '';
 
     /**
-     * Command arguments passed from CLI.
+     * Command aliases
+     *
+     * @var array
+     */
+    protected array $aliases = [];
+
+    /**
+     * Command arguments
+     *
+     * @var array
      */
     protected array $arguments = [];
 
     /**
-     * Command options passed from CLI.
+     * Command options
+     *
+     * @var array
      */
     protected array $options = [];
 
     /**
-     * Output interface for writing to console.
+     * Input instance
+     *
+     * @var Input|null
      */
-    protected $output;
+    protected ?Input $input = null;
 
     /**
-     * Create a new command instance.
+     * Output instance
+     *
+     * @var Output|null
      */
-    public function __construct(array $arguments = [], array $options = [])
+    protected ?Output $output = null;
+
+    /**
+     * Configure the command
+     *
+     * @return void
+     */
+    protected function configure(): void
     {
-        $this->arguments = $arguments;
-        $this->options = $options;
-        $this->setupOutput();
+        // Override in subclass
     }
 
     /**
-     * Execute the console command.
+     * Execute the command
+     *
+     * @param Input $input
+     * @param Output $output
+     * @return int Exit code
      */
-    abstract public function handle(): int;
+    abstract protected function execute(Input $input, Output $output): int;
 
     /**
-     * Get the command signature.
+     * Run the command
+     *
+     * @param Input $input
+     * @param Output $output
+     * @return int Exit code
      */
-    public function getSignature(): string
+    public function run(Input $input, Output $output): int
     {
-        return $this->signature;
+        $this->input = $input;
+        $this->output = $output;
+        
+        // Configure command
+        $this->configure();
+        
+        // Execute command
+        return $this->execute($input, $output);
     }
 
     /**
-     * Get the command description.
+     * Set the command name
+     *
+     * @param string $name
+     * @return $this
+     */
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * Get the command name
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set the command description
+     *
+     * @param string $description
+     * @return $this
+     */
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    /**
+     * Get the command description
+     *
+     * @return string
      */
     public function getDescription(): string
     {
@@ -69,281 +154,184 @@ abstract class Command
     }
 
     /**
-     * Get an argument by name.
+     * Set command aliases
+     *
+     * @param array $aliases
+     * @return $this
      */
-    protected function argument(string $name): ?string
+    public function setAliases(array $aliases): self
     {
-        return $this->arguments[$name] ?? null;
+        $this->aliases = $aliases;
+        return $this;
     }
 
     /**
-     * Get all arguments.
+     * Get command aliases
+     *
+     * @return array
      */
-    protected function arguments(): array
+    public function getAliases(): array
+    {
+        return $this->aliases;
+    }
+
+    /**
+     * Add a command argument
+     *
+     * @param string $name
+     * @param bool $required
+     * @param string $description
+     * @param mixed $default
+     * @return $this
+     */
+    public function addArgument(string $name, bool $required = false, string $description = '', $default = null): self
+    {
+        $this->arguments[$name] = [
+            'required' => $required,
+            'description' => $description,
+            'default' => $default,
+        ];
+        
+        return $this;
+    }
+
+    /**
+     * Get command arguments
+     *
+     * @return array
+     */
+    public function getArguments(): array
     {
         return $this->arguments;
     }
 
     /**
-     * Get an option by name.
+     * Add a command option
+     *
+     * @param string $name
+     * @param string|null $shortcut
+     * @param bool $required
+     * @param string $description
+     * @param mixed $default
+     * @return $this
      */
-    protected function option(string $name): mixed
+    public function addOption(string $name, ?string $shortcut = null, bool $required = false, string $description = '', $default = null): self
     {
-        return $this->options[$name] ?? null;
+        $this->options[$name] = [
+            'shortcut' => $shortcut,
+            'required' => $required,
+            'description' => $description,
+            'default' => $default,
+        ];
+        
+        return $this;
     }
 
     /**
-     * Get all options.
+     * Get command options
+     *
+     * @return array
      */
-    protected function options(): array
+    public function getOptions(): array
     {
         return $this->options;
     }
 
     /**
-     * Write a string as information output.
+     * Set the application
+     *
+     * @param Application $application
+     * @return void
      */
-    protected function info(string $message): void
+    public function setApplication(Application $application): void
     {
-        echo "\033[32m✓ {$message}\033[0m\n";
+        $this->application = $application;
     }
 
     /**
-     * Write a string as error output.
+     * Get the application
+     *
+     * @return Application|null
      */
-    protected function error(string $message): void
+    public function getApplication(): ?Application
     {
-        echo "\033[31m✗ {$message}\033[0m\n";
+        return $this->application;
     }
 
     /**
-     * Write a string as warning output.
+     * Get an argument value
+     *
+     * @param string $name
+     * @return mixed
      */
-    protected function warn(string $message): void
+    protected function argument(string $name)
     {
-        echo "\033[33m⚠ {$message}\033[0m\n";
+        return $this->input?->getArgument($name);
     }
 
     /**
-     * Write a string as comment output.
+     * Get an option value
+     *
+     * @param string $name
+     * @return mixed
      */
-    protected function comment(string $message): void
+    protected function option(string $name)
     {
-        echo "\033[37m{$message}\033[0m\n";
+        return $this->input?->getOption($name);
     }
 
     /**
-     * Write a string as question output.
-     */
-    protected function question(string $message): void
-    {
-        echo "\033[36m? {$message}\033[0m\n";
-    }
-
-    /**
-     * Write a line of output.
+     * Write a message to output
+     *
+     * @param string $message
+     * @return void
      */
     protected function line(string $message = ''): void
     {
-        echo $message . "\n";
+        $this->output?->writeln($message);
     }
 
     /**
-     * Ask the user a question.
+     * Write an info message
+     *
+     * @param string $message
+     * @return void
      */
-    protected function ask(string $question, ?string $default = null): string
+    protected function info(string $message): void
     {
-        echo "\033[36m? {$question}\033[0m";
-        if ($default !== null) {
-            echo " \033[37m({$default})\033[0m";
-        }
-        echo ": ";
-
-        $input = trim(fgets(STDIN));
-        
-        return $input !== '' ? $input : ($default ?? '');
+        $this->output?->info($message);
     }
 
     /**
-     * Ask the user a yes/no question.
+     * Write a success message
+     *
+     * @param string $message
+     * @return void
      */
-    protected function confirm(string $question, bool $default = false): bool
+    protected function success(string $message): void
     {
-        $defaultText = $default ? 'Y/n' : 'y/N';
-        echo "\033[36m? {$question}\033[0m \033[37m({$defaultText})\033[0m: ";
-
-        $input = strtolower(trim(fgets(STDIN)));
-        
-        if ($input === '') {
-            return $default;
-        }
-        
-        return in_array($input, ['y', 'yes', '1', 'true']);
+        $this->output?->success($message);
     }
 
     /**
-     * Ask the user to select from a list of choices.
+     * Write a warning message
+     *
+     * @param string $message
+     * @return void
      */
-    protected function choice(string $question, array $choices, ?string $default = null): string
+    protected function warn(string $message): void
     {
-        echo "\033[36m? {$question}\033[0m\n";
-        
-        foreach ($choices as $index => $choice) {
-            $prefix = $choice === $default ? '*' : ' ';
-            echo "  {$prefix} [{$index}] {$choice}\n";
-        }
-        
-        echo "Choose an option: ";
-        $input = trim(fgets(STDIN));
-        
-        if ($input === '' && $default !== null) {
-            return $default;
-        }
-        
-        if (is_numeric($input) && isset($choices[$input])) {
-            return $choices[$input];
-        }
-        
-        if (in_array($input, $choices)) {
-            return $input;
-        }
-        
-        $this->error('Invalid choice. Please try again.');
-        return $this->choice($question, $choices, $default);
+        $this->output?->warning($message);
     }
 
     /**
-     * Call another console command.
+     * Write an error message
+     *
+     * @param string $message
+     * @return void
      */
-    protected function call(string $command, array $arguments = []): int
+    protected function error(string $message): void
     {
-        // In a real implementation, this would invoke the command through the console kernel
-        $this->comment("Would call command: {$command} with arguments: " . json_encode($arguments));
-        return 0;
-    }
-
-    /**
-     * Call another console command silently.
-     */
-    protected function callSilent(string $command, array $arguments = []): int
-    {
-        // In a real implementation, this would invoke the command silently
-        return $this->call($command, $arguments);
-    }
-
-    /**
-     * Set up output interface.
-     */
-    protected function setupOutput(): void
-    {
-        // In a real implementation, this would set up a proper output interface
-        $this->output = new class {
-            public function write(string $message): void {
-                echo $message;
-            }
-            
-            public function writeln(string $message): void {
-                echo $message . "\n";
-            }
-        };
-    }
-
-    /**
-     * Display a table of data.
-     */
-    protected function table(array $headers, array $rows): void
-    {
-        // Simple table implementation for demonstration
-        if (empty($headers) || empty($rows)) {
-            return;
-        }
-
-        // Calculate column widths
-        $widths = [];
-        foreach ($headers as $i => $header) {
-            $widths[$i] = strlen($header);
-        }
-
-        foreach ($rows as $row) {
-            foreach ($row as $i => $cell) {
-                $widths[$i] = max($widths[$i], strlen($cell));
-            }
-        }
-
-        // Draw table
-        $this->drawTableRow($headers, $widths);
-        $this->drawTableSeparator($widths);
-        
-        foreach ($rows as $row) {
-            $this->drawTableRow($row, $widths);
-        }
-    }
-
-    /**
-     * Draw a table row.
-     */
-    protected function drawTableRow(array $row, array $widths): void
-    {
-        echo '| ';
-        foreach ($row as $i => $cell) {
-            echo str_pad($cell, $widths[$i]) . ' | ';
-        }
-        echo "\n";
-    }
-
-    /**
-     * Draw table separator.
-     */
-    protected function drawTableSeparator(array $widths): void
-    {
-        echo '|-';
-        foreach ($widths as $width) {
-            echo str_repeat('-', $width) . '-|-';
-        }
-        echo "\n";
-    }
-
-    /**
-     * Create a progress bar.
-     */
-    protected function progressBar(int $max): object
-    {
-        return new class($max) {
-            private int $max;
-            private int $current = 0;
-            
-            public function __construct(int $max) {
-                $this->max = $max;
-            }
-            
-            public function advance(int $step = 1): void {
-                $this->current += $step;
-                $this->display();
-            }
-            
-            public function finish(): void {
-                $this->current = $this->max;
-                $this->display();
-                echo "\n";
-            }
-            
-            private function display(): void {
-                $percent = $this->max > 0 ? ($this->current / $this->max) * 100 : 0;
-                $bar = str_repeat('=', (int)($percent / 5)) . str_repeat(' ', 20 - (int)($percent / 5));
-                echo sprintf("\r[%s] %d%% (%d/%d)", $bar, $percent, $this->current, $this->max);
-            }
-        };
-    }
-
-    /**
-     * Get Laravel-style output instance.
-     */
-    public function __get(string $name)
-    {
-        if ($name === 'output') {
-            return $this->output;
-        }
-        
-        throw new \InvalidArgumentException("Property {$name} does not exist on " . static::class);
+        $this->output?->error($message);
     }
 }

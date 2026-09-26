@@ -910,3 +910,87 @@ if (!function_exists('bcrypt')) {
         return app('hash')->driver('bcrypt')->make($value, $options);
     }
 }
+
+// ============================================================================
+// Array Helpers
+// ============================================================================
+
+if (!function_exists('array_except')) {
+    /**
+     * Get all of the given array except for a specified array of keys
+     *
+     * @param array $array
+     * @param array|string $keys
+     * @return array
+     */
+    function array_except(array $array, $keys): array
+    {
+        $keys = is_array($keys) ? $keys : func_get_args();
+        array_shift($keys); // Remove $array from args
+        
+        return array_diff_key($array, array_flip($keys));
+    }
+}
+
+// ============================================================================
+// Authorization Helpers
+// ============================================================================
+
+if (!function_exists('gate')) {
+    /**
+     * Get the gate instance
+     *
+     * @return \Horizon\Auth\Access\Gate
+     */
+    function gate()
+    {
+        return app('gate');
+    }
+}
+
+if (!function_exists('can')) {
+    /**
+     * Determine if the given ability should be granted for the current user
+     *
+     * @param string $ability
+     * @param mixed ...$arguments
+     * @return bool
+     */
+    function can(string $ability, ...$arguments): bool
+    {
+        return gate()->allows($ability, ...$arguments);
+    }
+}
+
+if (!function_exists('cannot')) {
+    /**
+     * Determine if the given ability should be denied for the current user
+     *
+     * @param string $ability
+     * @param mixed ...$arguments
+     * @return bool
+     */
+    function cannot(string $ability, ...$arguments): bool
+    {
+        return gate()->denies($ability, ...$arguments);
+    }
+}
+
+if (!function_exists('authorize')) {
+    /**
+     * Authorize a given action or throw an exception
+     *
+     * @param string $ability
+     * @param mixed ...$arguments
+     * @return void
+     * @throws \Horizon\Auth\Access\AuthorizationException
+     */
+    function authorize(string $ability, ...$arguments): void
+    {
+        if (cannot($ability, ...$arguments)) {
+            throw new \Horizon\Auth\Access\AuthorizationException(
+                "This action is unauthorized."
+            );
+        }
+    }
+}

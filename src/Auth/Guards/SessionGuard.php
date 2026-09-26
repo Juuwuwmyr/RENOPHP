@@ -5,10 +5,6 @@ namespace Horizon\Auth\Guards;
 use Horizon\Auth\Contracts\Authenticatable;
 use Horizon\Auth\Contracts\StatefulGuard;
 use Horizon\Auth\Contracts\UserProvider;
-use Horizon\Auth\Events\Authenticated;
-use Horizon\Auth\Events\Login;
-use Horizon\Auth\Events\Logout;
-use Horizon\Auth\Events\Failed;
 
 /**
  * SessionGuard

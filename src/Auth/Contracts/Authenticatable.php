@@ -56,4 +56,11 @@ interface Authenticatable
      * @return string
      */
     public function getRememberTokenName(): string;
+
+    /**
+     * Get the email address where password reset links should be sent
+     *
+     * @return string
+     */
+    public function getEmailForPasswordReset(): string;
 }
